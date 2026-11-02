@@ -1,2 +1,2 @@
-# M7-TTS
-M7-TTS: A **M**ini-Scale **M**ultilingual and **M**ulti-Dialect Text-to-Speech Language **M**odel with **M**i**m**i codec and **M**ulti Token Prediction
+# M5-TTS
+M5-TTS:A Mini-Scale Multilingual and Multi-Dialect Text-to-Speech Language Model with Multi Token Prediction
