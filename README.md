@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  Compact speech models · Multilingual voices · CPU streaming
+  <b>50M LM · Multilingual & Multi-Dialect · Voice Cloning · Streaming</b>
 </p>
 
 <p align="center">
@@ -18,114 +18,101 @@
   <a href="https://huggingface.co/ASLP-lab/M5-TTS">🤗 Model Repository</a>
 </p>
 
-**M5-TTS** explores how small an LLM-based text-to-speech system can be while retaining clear speech, voice cloning, and multilingual generation. We focus on compact models, practical CPU inference, and streaming synthesis, with SFT and GRPO experiments to improve generation quality.
+**M5-TTS** is an LLM-based text-to-speech project featuring a **50M-parameter language model**, multilingual and Chinese dialect synthesis, voice cloning, and streaming inference. Our goal is clear, natural speech from a compact model that is practical to deploy on CPU and GPU.
+
+**Half the LM parameters of MOSS-TTS-Nano:** M5-TTS uses a **50M LM**, compared with **100M** for MOSS-TTS-Nano. On Seed-ZH / Seed-EN, M5-TTS achieves **1.46% CER / 3.13% WER**, compared with **3.62% / 4.50%** for Nano.
 
 ## ✨ Features
 
-| | Feature | What M5-TTS explores |
+| | Feature | M5-TTS |
 | :--- | :--- | :--- |
-| **M₁** | **Mini** | Model scaling experiments including a **50M-scale configuration (30M + 20M)**, targeting efficient deployment and reliable everyday speech. |
-| **M₂** | **Multilingual** | Evaluation across **Chinese, English, German, French, Japanese, and Korean**. |
-| **M₃** | **Multi-Accent** | Chinese dialect experiments covering **Sichuanese, Wu, and Cantonese**, with dialect fine-tuning and GRPO evaluation. |
-| **M₄** | **Multi-Token Prediction** | MTP for speech token modeling, targeting efficient generation in compact models. |
-| **M₅** | **LLM-based Modeling** | Language-model-based speech generation, with **voice cloning**, dedicated speaker fine-tuning, and GRPO post-training experiments. |
+| **M₁** | **Mini** | **50M LM parameters**, half the LM parameter count of MOSS-TTS-Nano. |
+| **M₂** | **Multilingual** | Speech synthesis evaluated in **Chinese, English, German, French, Japanese, and Korean**. |
+| **M₃** | **Multi-Accent** | Chinese dialect synthesis covering **Sichuanese, Wu, and Cantonese**. |
+| **M₄** | **Multi-Token Prediction** | MTP-based speech token modeling for compact speech generation. |
+| **M₅** | **LLM-based Modeling** | Language-model-based speech generation with **voice cloning**, dedicated speaker voices, and GRPO post-training. |
 
-- **Streaming on CPU and GPU.** Four-core CPU streaming reaches **RTF 0.653** with a **225 ms** warm first chunk in the recorded test below.
-- **24 kHz speech output.** Higher-resolution output and richer instruction control are on the roadmap.
+- **CPU and GPU streaming:** Real-time streaming on a four-core CPU in the recorded benchmark below.
+- **24 kHz speech output:** Multilingual synthesis and voice-cloning applications from one compact TTS project.
 
-The model sizes above refer to experimental configurations. The parameter count and included components of each downloadable release will be listed with its checkpoint. A standalone MTP speedup or ablation result has not yet been reported.
+## 📊 Comparison with MOSS-TTS-Nano
 
-## 📊 Current Results
+| Model | LM parameters, excluding codec ↓ |
+| :--- | ---: |
+| [MOSS-TTS-Nano](https://huggingface.co/OpenMOSS-Team/MOSS-TTS-Nano-100M) | 100M |
+| **M5-TTS** | **50M** |
 
-These are development results. Tables use different experimental configurations; they do not describe one shared release checkpoint. Missing values and release mappings are left blank.
+**Bold** marks the better result in each paired comparison. Empty cells indicate unavailable results or evaluation information. Each benchmark follows its own recorded evaluation configuration.
 
-### Streaming and CPU Inference
+### Seed: Intelligibility and Speaker Similarity
 
-<!-- Source: supplied development notes, p. 24, embedded performance table. -->
+<!-- Source: supplied development notes, p. 6, paired table labeled 2.0-100step. -->
 
-| Hardware | Mode | RTF ↓ | Warm first chunk ↓ |
+| Benchmark | Metric | MOSS-TTS-Nano | M5-TTS |
 | :--- | :--- | ---: | ---: |
-| Intel Xeon Gold 6530, 1 CPU core | Streaming | 1.587 | 541 ms |
-| Intel Xeon Gold 6530, 4 CPU cores | Streaming | **0.653** | **225 ms** |
-| Intel Xeon Gold 6530, 4 CPU cores | Non-streaming | 0.627 | |
-| NVIDIA RTX 4090 | Streaming | **0.098** | **20.1 ms** |
+| Seed-ZH | CER ↓ | 3.62% | **1.46%** |
+| Seed-ZH | SIM ↑ | 0.6421 | **0.6453** |
+| Seed-EN | WER ↓ | 4.50% | **3.13%** |
+| Seed-EN | SIM ↑ | 0.5007 | **0.5272** |
+| Seed-Hard | CER ↓ | **15.77%** | 18.41% |
+| Seed-Hard | SIM ↑ | **0.6250** | 0.5854 |
 
-**Test conditions:** Each configuration uses the same 10 sentences, excluding warmup. CPU inference uses FP32 TTS and FP32 codec; GPU inference uses PyTorch BF16 with compilation. The CPU run's approximately 6.2 seconds of preparation for five voices is excluded. First-chunk audio durations are 220 ms on CPU and 60 ms on GPU. These are recorded measurements, not a new rerun. RTF is inference time divided by generated audio duration; values below 1 indicate faster-than-real-time generation.
+CER: character error rate. WER: word error rate. SIM: speaker similarity, reported on the original 0–1 scale.
 
-| Checkpoint | Batch size | OS / runtime versions |
-| :--- | :--- | :--- |
-| | | |
+### CV3: Multilingual Synthesis
 
-### Speech Intelligibility and Speaker Similarity
+<!-- Source: supplied development notes, p. 6, CV3 comparison using Qwen3-ASR for both models. Do not mix in the original-ASR column or unlabeled rows on p. 10. -->
 
-<!-- Source: supplied development notes, p. 6, independent table labeled 2.0-100step. -->
+Both models are evaluated with **Qwen3-ASR-1.7B**, the same reference text, and the same scoring procedure. Results are corpus-level error rates.
 
-Recorded experiment: **`2.0-100step`**.
-
-| Benchmark | Metric ↓ | Error rate | Speaker similarity ↑ |
+| Language | Metric ↓ | MOSS-TTS-Nano | M5-TTS |
 | :--- | :--- | ---: | ---: |
-| Seed-ZH | CER | **1.46%** | 0.6453 |
-| Seed-EN | WER | **3.13%** | 0.5272 |
-| Seed-Hard | CER | 18.41% | 0.5854 |
+| Chinese | CER | **3.0910%** | 6.4214% |
+| English | WER | **8.0996%** | 10.2723% |
+| German | WER | 19.6214% | **12.1045%** |
+| French | WER | 33.3211% | **21.9895%** |
+| Japanese | CER | 40.8071% | **19.4897%** |
+| Korean | CER | 18.4907% | **11.1277%** |
 
-CER: character error rate. WER: word error rate. Speaker similarity is reported on the original 0–1 scale.
+### Minimax Multilingual
 
-| Full checkpoint | ASR evaluator | Speaker encoder | Sample count |
-| :--- | :--- | :--- | :--- |
-| | | | |
+<!-- Source: supplied development notes, p. 10, explicit M5 / MOSS-TTS-Nano comparison. -->
 
-<details>
-<summary>Earlier CPT → GRPO experiments</summary>
+| Language / variety | Metric ↓ | MOSS-TTS-Nano | M5-TTS |
+| :--- | :--- | ---: | ---: |
+| Chinese | CER | **1.1470%** | 2.3983% |
+| English | WER | 4.4841% | **3.7817%** |
+| German | WER | 9.0470% | **3.5912%** |
+| French | WER | **15.0593%** | 16.7612% |
+| Japanese | CER | 35.8611% | **11.1923%** |
+| Korean | CER | 10.6874% | **4.6992%** |
+| Cantonese | CER | | 17.9779% |
 
-<!-- Source: supplied development notes, p. 6, white Seed table. -->
+### Chinese Dialect Benchmarks
 
-| Experiment | Seed-ZH CER ↓ | ZH SIM ↑ | Seed-EN WER ↓ | EN SIM ↑ |
-| :--- | ---: | ---: | ---: | ---: |
-| `cpt_model_4_109620` | 3.81% | 0.6548 | 4.72% | 0.5572 |
-| `grpo_cn_50step` | 3.55% | 0.6576 | 4.00% | 0.5584 |
-| `grpo_cn_100step` | 2.74% | 0.6641 | 4.86% | 0.5611 |
+<!-- Source: supplied development notes, pp. 12–13, row labeled grpo. Metric definitions and Nano results are absent; do not infer a metric, percentage unit, or Nano score. -->
 
-These runs show improvements in Chinese intelligibility. English WER does not improve consistently. `grpo_cn_100step` and `2.0-100step` are separate experiment labels.
+| Benchmark | Subset | Metric | MOSS-TTS-Nano | M5-TTS |
+| :--- | :--- | :--- | ---: | ---: |
+| WSC-Eval-TTS | Easy | | | 4.44 |
+| WSC-Eval-TTS | Hard | | | 6.63 |
+| WSW | Easy | | | 17.15 |
+| WSW | Hard | | | 67.00 |
+| WSYue-TTS-eval | Base, with period | | | 7.06 |
+| WSYue-TTS-eval | Coverage | | | 8.18 |
 
-</details>
+### Streaming and Inference Speed
 
-### Multilingual Synthesis
+<!-- Source: supplied development notes, p. 24, paired M5 / Nano performance table. -->
 
-<!-- Source: supplied development notes, p. 10, Minimax multilingual table labeled M5. -->
+| Hardware | Mode | Nano RTF ↓ | M5 RTF ↓ | Nano first chunk ↓ | M5 first chunk ↓ |
+| :--- | :--- | ---: | ---: | ---: | ---: |
+| Xeon Gold 6530, 1 CPU core | Streaming | **1.054** | 1.587 | **330 ms** | 541 ms |
+| Xeon Gold 6530, 4 CPU cores | Streaming | **0.372** | 0.653 | **127 ms** | 225 ms |
+| Xeon Gold 6530, 4 CPU cores | Non-streaming | **0.335** | 0.627 | | |
+| RTX 4090 | Streaming | 0.206 | **0.098** | 45.8 ms | **20.1 ms** |
 
-Benchmark: **Minimax multilingual**; model label in the experiment log: **M5**.
-
-| Language / variety | Metric ↓ | Error rate |
-| :--- | :--- | ---: |
-| Chinese | CER | 2.3983% |
-| English | WER | 3.7817% |
-| German | WER | 3.5912% |
-| French | WER | 16.7612% |
-| Japanese | CER | 11.1923% |
-| Korean | CER | 4.6992% |
-| Cantonese | CER | 17.9779% |
-
-| Checkpoint | ASR evaluator | Sample count |
-| :--- | :--- | :--- |
-| | | |
-
-<details>
-<summary>Dialect experiment records</summary>
-
-<!-- Source: supplied development notes, pp. 12–13, row labeled grpo. -->
-
-| Benchmark | Subset | Metric | Recorded value |
-| :--- | :--- | :--- | ---: |
-| WSC-Eval-TTS | Easy | | 4.44 |
-| WSC-Eval-TTS | Hard | | 6.63 |
-| WSW | Easy | | 17.15 |
-| WSW | Hard | | 67.00 |
-| WSYue-TTS-eval | Base | | 7.06 |
-| WSYue-TTS-eval | Coverage | | 8.18 |
-
-The source row is labeled `grpo`; its metric definition and checkpoint are not specified. Values are retained as recorded, without assigning a metric or percentage unit. Wu synthesis, especially the hard subset, remains an area for improvement.
-
-</details>
+**Test conditions:** Each paired configuration uses the same 10 sentences, excluding warmup. First-chunk latency is measured after warmup; the M5 CPU run excludes approximately 6.2 seconds of preparation for five voices. M5 CPU inference uses FP32 TTS + FP32 codec. On GPU, Nano uses ONNX CUDA FP32, while M5 uses PyTorch BF16 + compilation. First-chunk audio durations differ: Nano / M5 are 80 / 220 ms on CPU and 80 / 60 ms on GPU. These measurements compare the listed deployment configurations. RTF is inference time divided by generated audio duration; values below 1 indicate faster-than-real-time generation.
 
 ## 🤗 Models and Resources
 
@@ -137,11 +124,9 @@ The source row is labeled `grpo`; its metric definition and checkpoint are not s
 | Audio demo | |
 | Inference code | |
 
-The Hugging Face repository currently contains the model card. Checkpoint files, configurations, and verified setup instructions will be added as they become available.
-
-| Checkpoint file | Parameters | Supported languages / dialects | Download |
-| :--- | :--- | :--- | :--- |
-| | | | |
+| Checkpoint file | LM parameters | Download |
+| :--- | ---: | :--- |
+| | 50M | |
 
 ### Installation
 
@@ -159,26 +144,6 @@ The Hugging Face repository currently contains the model card. Checkpoint files,
 | Multilingual synthesis | | |
 | Dialect synthesis | | |
 | Dedicated speaker voices | | |
-
-## 🎯 Goals and Roadmap
-
-Our first priority is **a compact TTS system with clear pronunciation, useful voice cloning, multilingual coverage, and practical streaming on CPU**.
-
-- [x] Model-size exploration, including 50M-scale configurations
-- [x] Multilingual and Chinese dialect experiments
-- [x] Voice-cloning and dedicated-speaker training experiments
-- [x] GRPO experiments and preliminary streaming / CPU measurements
-- [x] Hugging Face model entry
-- [ ] Upload model weights and configurations, with checkpoint-to-result mappings
-- [ ] Release inference code, reproducible evaluation, and audio demos
-- [ ] Improve hard Chinese text, Wu synthesis, and prosody / pauses
-- [ ] Evaluate single-speaker generation across multiple dialects
-- [ ] Add emotion / style tags, instruction control, and pronunciation / pinyin correction
-- [ ] Evaluate non-verbal vocalization control
-- [ ] Optimize ONNX, Transformers, vLLM / SGLang integration and integer quantization
-- [ ] Validate mobile and edge-device deployment
-- [ ] Explore distillation and on-policy distillation
-- [ ] Explore 48 kHz stereo output through a higher-resolution vocoder
 
 ## License
 
