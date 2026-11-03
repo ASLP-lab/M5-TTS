@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/m5-tts-logo.png" alt="M5-TTS 蜂鸟标志" width="440">
+  <img src="m5-tts-logo.png" alt="M5-TTS 蜂鸟标志" width="440">
 </p>
 
 <h1 align="center">M5-TTS</h1>
