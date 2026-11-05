@@ -5,91 +5,198 @@
 <h1 align="center">M5-TTS</h1>
 
 <p align="center">
-  <b>Mini, Multilingual, Multi-Accent, Multi-Token Prediction, and LLM-based Modeling</b>
+  <b>A Mini-Scale Multilingual and Multi-Dialect Text-to-Speech Language Model with Multi-Token Prediction</b>
 </p>
 
 <p align="center">
-  <b>50M LM · 多语种与多方言 · 音色克隆 · 流式合成</b>
+  <b>50M LM · 六种语言 · 中文方言 · 零样本音色克隆 · CPU 流式合成</b>
 </p>
 
 <p align="center">
   <a href="README.md">English</a> | 简体中文<br>
-  <a href="https://huggingface.co/collections/ASLP-lab/m5-tts">🤗 模型合集</a> ·
-  <a href="https://huggingface.co/ASLP-lab/M5-TTS">🤗 模型仓库</a>
+  <a href="https://aslp-lab.github.io/M5-TTS-Demo-Page/M5_TTS__A_Mini_Scale_Multilingual_and_Multi_Dialect_Text_to_Speech_Language_Model_with_Multi_Token_Prediction_v2.pdf">技术报告</a> ·
+  <a href="https://aslp-lab.github.io/M5-TTS-Demo-Page/">音频演示</a> ·
+  <a href="https://huggingface.co/spaces/ASLP-lab/M5-TTS-Space">在线体验</a> ·
+  <a href="https://huggingface.co/collections/ASLP-lab/m5-tts">模型合集</a>
 </p>
 
-**M5-TTS** 是一个基于语言模型的语音合成项目，采用 **50M 参数的语言模型**，支持多语种与中文方言合成、音色克隆和流式推理。我们的目标是以小模型生成清晰、自然的语音，并实现实用的 CPU / GPU 部署。
+**M5-TTS** 是基于语言模型的轻量语音生成系统，支持多语种、中文方言、零样本音色克隆，以及精品说话人的单人多语合成。其 **50M LM 参数量不含语音 codec**，由时间维度 backbone 和局部多 Token 预测（MTP）模块组成。
 
-**LM 参数量仅为 MOSS-TTS-Nano 的一半：** M5-TTS 的 LM 为 **50M**，MOSS-TTS-Nano 为 **100M**。在 Seed-ZH / Seed-EN 上，M5-TTS 达到 **1.46% CER / 3.13% WER**，Nano 对应为 **3.62% / 4.50%**。
+**LM 参数量仅为 MOSS-TTS-Nano 的一半，Seed-ZH / Seed-EN 相对错误率分别降低 62.2% / 35.3%。** M5-TTS（GRPO）达到 **1.37% CER / 2.91% WER**，Nano 对应为 **3.62% / 4.50%**。在报告所测的四核 Xeon 配置下，CPU 流式合成达到 **RTF 0.653** 和 **225 ms 预热后首包延迟**。
 
 ## ✨ 核心特性
 
-| | 特性 | M5-TTS |
+|  | 特性 | M5-TTS 能力 |
 | :--- | :--- | :--- |
-| **M₁** | **Mini：小型化** | **50M LM 参数**，仅为 MOSS-TTS-Nano LM 参数量的一半。 |
-| **M₂** | **Multilingual：多语种** | 已评测**中文、英语、德语、法语、日语、韩语**六种语言的语音合成。 |
-| **M₃** | **Multi-Accent：多口音 / 多方言** | 覆盖**川渝方言、粤语**的中文方言合成。 |
-| **M₄** | **Multi-Token Prediction：多 Token 预测** | 采用 MTP 进行语音 Token 建模，服务于紧凑模型的语音生成。 |
-| **M₅** | **LLM-based Modeling：语言模型驱动** | 基于语言模型生成语音，支持**音色克隆、精品发言人**与 GRPO 后训练。 |
+| **M₁** | **Mini** | 50M LM：30M 时间 backbone 与 20M 局部解码器；codec 参数单独计算。 |
+| **M₂** | **Multilingual** | 中文、英语、德语、法语、日语、韩语。 |
+| **M₃** | **Multi-Dialect** | 粤语（Yue）和四川话（Chuan），提供对应方言评测。 |
+| **M₄** | **Multi-Token Prediction** | 16 个码本，codec 帧率为 12.5 Hz；分层进行时间建模和帧内生成。 |
+| **M₅** | **Language Modeling** | 参考语音驱动的零样本克隆、精品说话人单人多语合成，以及 GRPO 后训练。 |
 
-- **CPU / GPU 流式合成：** 下方性能记录中，四核 CPU 可实现实时流式生成。
-- **24 kHz 语音输出：** 以小模型服务多语种合成与音色克隆应用。
+- **24 kHz 语音输出**，使用因果语音 codec 解码器。
+- **CPU 流式推理**：结合计算图优化、缓存复用、有状态 codec 解码和自适应分块调度。
+- **全局 + 局部后训练反馈**：说话人相似度与停顿奖励结合 token-level CER 过程优势。
 
-## 📊 与 MOSS-TTS-Nano 对比
+## 🎧 在线体验
 
-| 模型 | LM 参数量，不含 codec ↓ |
-| :--- | ---: |
-| [MOSS-TTS-Nano](https://huggingface.co/OpenMOSS-Team/MOSS-TTS-Nano-100M) | 100M |
-| **M5-TTS** | **50M** |
+打开[在线 Space](https://huggingface.co/spaces/ASLP-lab/M5-TTS-Space)，上传参考语音及其准确转写，输入目标文本，再选择语言和可选口音（`yue` / `chuan`）。当前演示最多接受 250 个字符的目标文本。[音频演示页](https://aslp-lab.github.io/M5-TTS-Demo-Page/)提供多语种与方言对比样例。
 
-每项成对比较中，**加粗**表示较优结果。空白表示暂无结果或评测信息；各 benchmark 沿用对应记录中的评测配置。
+在线 Space 使用 GPU，返回完整音频片段；下方 CPU 流式指标对应技术报告所评测的推理系统。
 
-### Seed：发音准确度与音色相似度
+### 发布状态（2026-11-06）
 
-<!-- 来源：提供的开发记录第 6 页，标记为 2.0-100step 的成对比较表。 -->
+| 资源 | 状态 |
+| :--- | :--- |
+| [技术报告](https://aslp-lab.github.io/M5-TTS-Demo-Page/M5_TTS__A_Mini_Scale_Multilingual_and_Multi_Dialect_Text_to_Speech_Language_Model_with_Multi_Token_Prediction_v2.pdf) | 已公开。 |
+| [Audio demos](https://aslp-lab.github.io/M5-TTS-Demo-Page/) | 已公开。 |
+| [Online Space](https://huggingface.co/spaces/ASLP-lab/M5-TTS-Space) | 已上线，Space 仓库提供[推理源码与一份 checkpoint](https://huggingface.co/spaces/ASLP-lab/M5-TTS-Space/tree/main)。 |
+| [Model collection](https://huggingface.co/collections/ASLP-lab/m5-tts) / [model repository](https://huggingface.co/ASLP-lab/M5-TTS) | 模型仓库已建立，独立模型发布仍在准备中；当前模型仓库包含模型卡，尚无权重文件。 |
+| 预训练、CPT 和 GRPO 代码 | 计划开放。 |
+| 完整本地 / CPU 流式推理工程 | 计划在本仓库开放。 |
+| 独立的克隆模型与精品说话人模型 | 计划开放；Space 中现有 checkpoint 未标明训练阶段。 |
 
-| 测试集 | 指标 | MOSS-TTS-Nano | M5-TTS |
+## 📊 实验结果
+
+以下结果依据技术报告整理。**Seed 和 MiniMax 主对照表使用 M5-TTS GRPO 零样本音色克隆模型。** CER/WER 单位为百分比，越低越好；SIM 为音色相似度，越高越好。成对比较中的较优结果加粗；`—` 表示缺失测量，不表示模型不支持该能力。
+
+| 模型 | LM 参数量（M）↓ |
+| :--- | :---: |
+| MOSS-TTS-Nano | 100 |
+| **M5-TTS** | **50** |
+
+以上参数量均不含语音 codec。
+
+### Seed-TTS Eval
+
+测试集：[Seed-TTS Eval](https://github.com/BytedanceSpeech/seed-tts-eval)。
+
+| 子集 | 指标 | MOSS-TTS-Nano | M5-TTS（GRPO） |
 | :--- | :--- | ---: | ---: |
-| Seed-ZH | CER ↓ | 3.62% | **1.46%** |
-| Seed-ZH | SIM ↑ | 0.6421 | **0.6453** |
-| Seed-EN | WER ↓ | 4.50% | **3.13%** |
-| Seed-EN | SIM ↑ | 0.5007 | **0.5272** |
-| Seed-Hard | CER ↓ | **15.77%** | 18.41% |
-| Seed-Hard | SIM ↑ | **0.6250** | 0.5854 |
+| Seed-ZH | CER (%) ↓ | 3.62 | **1.37** |
+| Seed-ZH | SIM ↑ | 0.64 | **0.65** |
+| Seed-EN | WER (%) ↓ | 4.50 | **2.91** |
+| Seed-EN | SIM ↑ | 0.50 | **0.53** |
+| Seed-Hard | CER (%) ↓ | **15.77** | 17.48 |
+| Seed-Hard | SIM ↑ | **0.63** | 0.59 |
 
-CER 为字错误率，WER 为词错误率；SIM 为音色相似度，保留原记录的 0–1 数值。
+相比 Nano，M5-TTS 的 Seed-ZH CER 和 Seed-EN WER 分别相对降低 **62.2%** 和 **35.3%**；在 **Seed-Hard** 上，Nano 的内容准确度与音色相似度仍更好。
 
-### CV3：多语种合成
+### MiniMax 多语种评测
 
-<!-- 来源：提供的开发记录第 6 页，双方均使用 Qwen3-ASR 的 CV3 对照表。不混入原 ASR 列或第 10 页无模型标识的记录。 -->
+测试集：[MiniMax TTS-Multilingual-Test-Set](https://huggingface.co/datasets/MiniMaxAI/TTS-Multilingual-Test-Set)。
 
-双方统一使用 **Qwen3-ASR-1.7B**、相同参考文本与评分口径，以下为语料级错误率。
+| 语言 | 错误率指标（%）↓ | Nano 错误率 | M5 错误率 | Nano SIM ↑ | M5 SIM ↑ |
+| :--- | :--- | ---: | ---: | ---: | ---: |
+| 中文 | CER | **1.80** | 2.05 | **0.73** | 0.71 |
+| 英语 | WER | 5.34 | **3.06** | **0.65** | 0.63 |
+| 德语 | WER | 11.18 | **3.81** | 0.54 | **0.63** |
+| 法语 | WER | 18.64 | **8.14** | 0.51 | **0.53** |
+| 日语 | CER | 40.22 | **9.70** | 0.70 | **0.72** |
+| 韩语 | CER | 8.21 | **2.88** | **0.67** | 0.66 |
 
-| 语言 | 指标 ↓ | MOSS-TTS-Nano | M5-TTS |
-| :--- | :--- | ---: | ---: |
-| 中文 | CER | **3.0910%** | 6.4214% |
-| 英语 | WER | **8.0996%** | 10.2723% |
-| 德语 | WER | 19.6214% | **12.1045%** |
-| 法语 | WER | 33.3211% | **21.9895%** |
-| 日语 | CER | 40.8071% | **19.4897%** |
-| 韩语 | CER | 18.4907% | **11.1277%** |
+M5-TTS 在六种语言中的**五种语言**上取得更低的内容错误率。EN / DE / FR / JA / KO 相对降幅分别为 **42.7% / 65.9% / 56.3% / 75.9% / 64.9%**。Nano 的中文 CER 仍更低，音色相似度则因语言而异。
 
-### Minimax Multilingual：多语种合成
+<details>
+<summary>CPT、GRPO 与精品说话人结果</summary>
 
-<!-- 来源：提供的开发记录第 10 页，明确标注 M5 / MOSS-TTS-Nano 的对比表。 -->
+**Seed-TTS Eval**
 
-| 语言 / 变体 | 指标 ↓ | MOSS-TTS-Nano | M5-TTS |
-| :--- | :--- | ---: | ---: |
-| 中文 | CER | **1.1470%** | 2.3983% |
-| 英语 | WER | 4.4841% | **3.7817%** |
-| 德语 | WER | 9.0470% | **3.5912%** |
-| 法语 | WER | **15.0593%** | 16.7612% |
-| 日语 | CER | 35.8611% | **11.1923%** |
-| 韩语 | CER | 10.6874% | **4.6992%** |
-| 粤语 | CER | | 17.9779% |
+| M5-TTS 版本 | 设置 | ZH CER（%） | ZH SIM | EN WER（%） | EN SIM | Hard CER（%） | Hard SIM |
+| :--- | :--- | ---: | ---: | ---: | ---: | ---: | ---: |
+| CPT | Voice Cloning | 1.70 | 0.64 | 3.60 | 0.53 | 20.92 | 0.57 |
+| GRPO | Voice Cloning | 1.37 | 0.65 | 2.91 | 0.53 | 17.48 | 0.59 |
+| Speaker-specific | Custom Voice | 1.26 | — | 1.88 | — | 18.19 | — |
+
+**MiniMax**
+
+每个单元格为 `CER/WER（%）/ SIM`；ZH / JA / KO 使用 CER，EN / DE / FR 使用 WER。
+
+| M5-TTS 版本 | ZH | EN | DE | FR | JA | KO |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: |
+| CPT | 2.54 / 0.70 | 3.67 / 0.62 | 4.60 / 0.63 | 8.15 / 0.51 | 12.71 / 0.72 | 3.10 / 0.66 |
+| GRPO | 2.05 / 0.71 | 3.06 / 0.63 | 3.81 / 0.63 | 8.14 / 0.53 | 9.70 / 0.72 | 2.88 / 0.66 |
+| Speaker-specific | 1.16 / — | 2.24 / — | 0.70 / — | 5.33 / — | 10.27 / — | 2.09 / — |
+
+精品说话人模型以 **Custom Voice** 设置单独评测，与零样本克隆分开报告；两者并非相同音色条件下的克隆对比。完整基线设置和预置音色选择见技术报告。
+
+</details>
 
 ### 中文方言评测
 
+| 方言 | 模型 | Easy CER（%）↓ | Easy SIM ↑ | Hard CER（%）↓ | Hard SIM ↑ |
+| :--- | :--- | ---: | ---: | ---: | ---: |
+| Yue | **M5-TTS (GRPO)** | **8.55** | 0.47 | **8.70** | 0.51 |
+| Yue | CosyVoice2-Yue | 10.33 | **0.62** | 9.49 | **0.67** |
+| Yue | Llasa-1B-Yue | 10.89 | 0.51 | 12.78 | 0.55 |
+| Chuan | **M5-TTS (GRPO)** | 5.08 | 0.58 | **7.78** | 0.59 |
+| Chuan | CosyVoice2-WSC | **4.28** | **0.64** | 8.78 | **0.65** |
 
-| 测试集 | 子集 | 指标 | MOSS-TTS-Nano | M5-TTS |
-| :--- | :--- | :--- | ---: | ---: |
+Yue 为粤语，Chuan 为四川话。同一方言的所有系统使用相同 ASR：粤语为 **U2pp-Conformer-Yue**，四川话为 **FireRedASR-AED**。M5-TTS 的粤语 CER 在所列系统中最低，四川话 Hard CER 也更低；方言 SIM 仍低于对应基线。
+
+### 主观评测
+
+**10 名听众**，使用 **1–5 分**评分。N-MOS：自然度；S-MOS：说话人相似度；I-MOS：可懂度；P-MOS：韵律与表现力。
+
+| 模型 | N-MOS ↑ | S-MOS ↑ | I-MOS ↑ | P-MOS ↑ |
+| :--- | ---: | ---: | ---: | ---: |
+| Kokoro-TTS | 2.85 | — | **3.10** | 2.60 |
+| MOSS-TTS-Nano | **3.00** | 2.85 | 2.65 | 2.80 |
+| **M5-TTS** | 2.90 | **3.05** | 2.95 | **2.85** |
+
+M5-TTS 的相似度与可懂度评分高于 Nano，自然度评分则较低。以上为描述性数值差异，报告未给出统计显著性结论。
+
+### CPU 流式性能
+
+| 硬件 | CPU 核心数 | RTF ↓ | 预热后首包延迟 ↓ |
+| :--- | :---: | ---: | ---: |
+| Intel Xeon Gold 6530 | 4 | 0.653 | 225 ms |
+
+RTF 为合成耗时与生成音频时长之比；**RTF < 1** 表示生成速度快于实时播放。计时不含模型加载与预热；这些结果对应所测服务器 CPU，不能直接代表手机或 ARM 平台表现。
+
+## 🧩 方法概述
+
+### 分层语音生成
+
+<p align="center">
+  <img src="https://aslp-lab.github.io/M5-TTS-Demo-Page/assets/architecture.png" alt="M5-TTS backbone 与 MTP 分层架构" width="900">
+</p>
+
+时间 backbone 在每一帧预测 **codebook 0**，局部 MTP Transformer 随后自回归生成 **codebooks 1–15**。历史帧的码本 embedding 求和后进入时间建模，完整帧由 [Qwen3-TTS 语音 tokenizer](https://github.com/QwenLM/Qwen3-TTS)增量解码为波形。
+
+### 训练与后训练
+
+1. **基础预训练：** 约 **400,000 小时**多语种与区域语音，包含 Emilia、Emilia-YODAS、内部录音和 WenetSpeech 系列数据。
+2. **持续预训练（CPT）：** 从预训练语料筛选约 **65,000 小时子集**，优先选取高质量录音、表现力语音和复杂发音样本。该部分为原语料子集，并非额外独立数据。
+3. **GRPO：** 句级 **SIM + 停顿**反馈构成全局优势；ASR 编辑对齐产生逐字符的组内相对反馈，将负优势按字符距离指数衰减传播至同一分句内更早的字符，再映射到 codec 帧。局部 CER 过程优势**加到**全局优势上，同一帧的全部码本共享组合后的信号。
+4. **精品说话人微调：** 使用指定说话人的精选录音，训练具有一致音色的单人多语模型。
+
+报告中全局奖励的权重为 SIM **1.0**、停顿 **0.5**，局部 CER 优势权重为 **0.5**，KL 系数为 **0.01**；句级 CER 广播关闭。预训练条件顺序为 `accent → language → text`，精品说话人微调时加入 speaker：`accent → speaker → language → text`。
+
+### 高效推理
+
+报告中的优化包括局部解码器帧计算图、投影融合、KV 与参考语音缓存、有状态 codec 解码，以及 CPU 上自适应 **4 / 8 / 16 帧**调度。GPU 路径使用 BF16 TTS LM、FP32 codec 和 `torch.compile`；上方性能指标为四核 CPU 的实测。
+
+## 当前限制与后续方向
+
+当前限制包括 16 码本局部自回归解码的带宽开销、仅支持 24 kHz 输出、强表现力语音中的声学瑕疵，以及困难中文输入和方言音色保持方面的不足。
+
+后续计划探索 **8 码本推理**、**48 kHz 输出**，改进困难样本筛选与数据配比，并支持对**情感、说话风格、笑声和叹息等副语言表达**的显式控制。
+
+## 许可证
+
+[Hugging Face 模型卡](https://huggingface.co/ASLP-lab/M5-TTS/blob/main/README.md)标记为 `Apache-2.0`。GitHub 代码与 Space 中的文件尚未提供独立许可证。
+
+## 引用
+
+如使用本工作，请引用技术报告：
+
+```bibtex
+@misc{m5tts2026,
+  title = {{M5-TTS: A Mini-Scale Multilingual and Multi-Dialect Text-to-Speech Language Model with Multi-Token Prediction}},
+  author = {Wenhao Li and Jingbin Hu and Shengming Ling and Xiaming Ren and Haoyu Zhang and Jinrui Liang and Hanke Xie and Qirui Zhan and Guobin Ma and Huakang Chen and Chunbo Hao and Jianguo Zheng and Wenkang Hou and Dake Guo and Yuepeng Jiang and Linhan Ma and Yunxiang Chen and Houdun Liu and Su Feng and Chuang Ding and Pengcheng Zhu and Liumeng Xue and Lei Xie},
+  year = {2026},
+  howpublished = {Technical report},
+  url = {https://github.com/ASLP-lab/M5-TTS}
+}
+```
