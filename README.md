@@ -28,7 +28,7 @@
 | :--- | :--- | :--- |
 | **M₁** | **Mini** | **50M LM parameters**, half the LM parameter count of MOSS-TTS-Nano. |
 | **M₂** | **Multilingual** | Speech synthesis evaluated in **Chinese, English, German, French, Japanese, and Korean**. |
-| **M₃** | **Multi-Accent** | Chinese dialect synthesis covering **Sichuanese, Wu, and Cantonese**. |
+| **M₃** | **Multi-Accent** | Chinese dialect synthesis covering **Sichuanese and Cantonese**. |
 | **M₄** | **Multi-Token Prediction** | MTP-based speech token modeling for compact speech generation. |
 | **M₅** | **LLM-based Modeling** | Language-model-based speech generation with **voice cloning**, dedicated speaker voices, and GRPO post-training. |
 
