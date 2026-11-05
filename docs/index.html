@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#6554cf">
+  <meta name="description" content="M5-TTS: a 50M-parameter multilingual and multi-dialect text-to-speech language model with multi-token prediction. Explore the architecture and listen to multilingual and Sichuanese voice-cloning examples.">
+  <title>M5-TTS · Multilingual Text-to-Speech Demo</title>
+  <link rel="icon" type="image/png" href="assets/m5-tts-logo.png">
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/samples.js" defer></script>
+  <script src="assets/app.js" defer></script>
+</head>
+<body>
+  <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M7 17 17 7M7 7h10v10"/></symbol>
+    <symbol id="icon-paper" viewBox="0 0 24 24"><path d="M14 3H5v18h14V8zM14 3v6h5M8 13h8M8 17h5"/></symbol>
+    <symbol id="icon-code" viewBox="0 0 24 24"><path d="m8 7-5 5 5 5m8-10 5 5-5 5m-3-13-2 16"/></symbol>
+    <symbol id="icon-model" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5 9-5Zm-9 9 9 5 9-5M3 16l9 5 9-5"/></symbol>
+    <symbol id="icon-play" viewBox="0 0 24 24"><path d="m9 5 11 7-11 7z"/></symbol>
+    <symbol id="icon-headphones" viewBox="0 0 24 24"><path d="M4 14v-3a8 8 0 0 1 16 0v3M4 12H3v8h5v-8Zm16 0h1v8h-5v-8Z"/></symbol>
+    <symbol id="icon-expand" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M3 3l6 6m12-6-6 6M3 21l6-6m12 6-6-6"/></symbol>
+    <symbol id="icon-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 15v6h16v-6"/></symbol>
+    <symbol id="icon-link" viewBox="0 0 24 24"><path d="m10 14 4-4m-6 7-1 1a4 4 0 0 1-6-6l4-4a4 4 0 0 1 6 0m2-1 1-1a4 4 0 0 1 6 6l-4 4a4 4 0 0 1-6 0" transform="translate(1 0)"/></symbol>
+    <symbol id="icon-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-11v2"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+    <symbol id="icon-up" viewBox="0 0 24 24"><path d="M12 20V4m-7 7 7-7 7 7"/></symbol>
+  </svg>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="nav-container">
+      <a class="brand" href="#top" aria-label="M5-TTS home">
+        <img src="assets/m5-tts-logo.png" alt="" width="44" height="32">
+        <span>M5-TTS</span><span class="brand-divider"></span><span class="brand-caption">Research demo</span>
+      </a>
+      <nav class="top-nav" aria-label="Main navigation">
+        <a href="#abstract">Overview</a>
+        <a href="#tokenizer">Architecture</a>
+        <a href="#examples">Audio examples</a>
+        <a class="nav-resource" href="#resources">Resources <svg class="icon"><use href="#icon-arrow"/></svg></a>
+      </nav>
+    </div>
+  </header>
+  <main id="main">
+    <section class="hero" id="top" aria-labelledby="paper-title">
+      <div class="hero-glow" aria-hidden="true"></div>
+      <div class="hero-content">
+        <div class="eyebrow"><span class="status-dot"></span> ASLP LAB <span class="eyebrow-separator">/</span> TECHNICAL REPORT <span class="report-date">NOV 2026</span></div>
+        <img class="hero-logo" src="assets/m5-tts-logo.png" alt="M5-TTS hummingbird logo from the technical report" width="200" height="144" fetchpriority="high">
+        <h1 id="paper-title"><span class="project-name">M5-TTS</span><span class="paper-subtitle">A Mini-Scale Multilingual and Multi-Dialect<br class="desktop-break"> Text-to-Speech Language Model<br class="desktop-break"> with Multi-Token Prediction</span></h1>
+        <div class="authors">
+          <span>Wenhao Li<sup>1,*</sup></span><span>Jingbin Hu<sup>1,*</sup></span><span>Shengming Ling<sup>1,*</sup></span><span>Xiaming Ren<sup>1,*</sup></span><span>Haoyu Zhang<sup>1,*</sup></span>
+          <span>Jinrui Liang<sup>1</sup></span><span>Hanke Xie<sup>1</sup></span><span>Qirui Zhan<sup>1</sup></span><span>Guobin Ma<sup>1</sup></span><span>Huakang Chen<sup>1</sup></span><span>Chunbo Hao<sup>1</sup></span>
+          <span>Dake Guo<sup>1</sup></span><span>Yuepeng Jiang<sup>1</sup></span><span>Linhan Ma<sup>1</sup></span><span>Yunxiang Chen<sup>2</sup></span><span>Houdun Liu<sup>2</sup></span><span>Su Feng<sup>2</sup></span>
+          <span>Chuang Ding<sup>3</sup></span><span>Pengcheng Zhu<sup>4</sup></span><span>Liumeng Xue<sup>5,†</sup></span><span>Lei Xie<sup>1,†</sup></span>
+        </div>
+        <p class="affiliation-summary">ASLP @ NPU &amp; NJU · Pimei Technology · Moonstep AI · WeNet</p>
+        <details class="affiliations">
+          <summary>Affiliations &amp; author notes</summary>
+          <div>
+            <p><sup>1</sup> Audio, Speech and Language Processing Group (ASLP@NPU), School of Computer Science, Northwestern Polytechnical University</p>
+            <p><sup>2</sup> Shenzhen Pimei Technology Co., Ltd. &nbsp; <sup>3</sup> Moonstep AI &nbsp; <sup>4</sup> WeNet Open Source Community</p>
+            <p><sup>5</sup> Audio, Speech and Language Processing Group (ASLP@NJU), School of Intelligence Science and Technology, Nanjing University</p>
+            <p class="author-notes">* Equal contribution &nbsp; † Corresponding authors</p>
+          </div>
+        </details>
+        <div class="hero-links" aria-label="Project links">
+          <a class="button button-primary" href="M5_TTS__A_Mini_Scale_Multilingual_and_Multi_Dialect_Text_to_Speech_Language_Model_with_Multi_Token_Prediction%20(3).pdf" target="_blank" rel="noopener"><svg class="icon"><use href="#icon-paper"/></svg> Technical report <svg class="icon small"><use href="#icon-arrow"/></svg></a>
+          <a class="button" href="https://github.com/ASLP-lab/M5-TTS" target="_blank" rel="noopener noreferrer"><svg class="icon"><use href="#icon-code"/></svg> Code</a>
+          <a class="button" href="https://huggingface.co/ASLP-lab/M5-TTS" target="_blank" rel="noopener noreferrer"><svg class="icon"><use href="#icon-model"/></svg> Model weights</a>
+          <a class="button" href="https://huggingface.co/spaces/ASLP-lab/M5-TTS-Space" target="_blank" rel="noopener noreferrer"><svg class="icon"><use href="#icon-play"/></svg> Interactive demo</a>
+        </div>
+        <div class="capabilities"><span>Multilingual &amp; multi-dialect</span><span>Zero-shot voice cloning</span><span>CPU streaming</span></div>
+      </div>
+    </section>
+
+    <div class="page-container">
+      <div class="stats-strip" aria-label="Key specifications from the technical report">
+        <div><strong>50<span>M</span></strong><span>Language-model parameters</span><small>Excluding the speech codec</small></div>
+        <div><strong>16</strong><span>Codebooks per frame</span><small>1 semantic + 15 acoustic</small></div>
+        <div><strong>12.5<span>Hz</span></strong><span>Speech token frame rate</span><small>Causal speech representation</small></div>
+        <div><strong>225<span>ms</span></strong><span>First-chunk latency</span><small>4 cores · Intel Xeon Gold 6530</small></div>
+      </div>
+
+      <section class="section abstract-section" id="abstract" aria-labelledby="abstract-title">
+        <div class="section-heading"><div><span class="section-kicker">THE RESEARCH</span><h2 id="abstract-title">Abstract</h2></div><span class="section-number" aria-hidden="true">01</span></div>
+        <div class="abstract-copy">
+          <p>We present <strong>M5-TTS</strong>, a compact language-model-based text-to-speech system that unifies multilingual and Chinese multidialect synthesis, zero-shot voice cloning, speaker-specific multilingual generation, and efficient CPU streaming within a <strong>50M-parameter language model</strong>. M5-TTS employs a 16-codebook speech representation with multi-token prediction for efficient speech generation. To improve synthesis quality, we introduce a Group Relative Policy Optimization (GRPO) framework that integrates pause, word/character error rate (WER/CER), and speaker-similarity rewards. We further propose <strong>CER-guided token-level credit assignment</strong>, which concentrates optimization on localized pronunciation errors rather than uniformly penalizing entire sequences.</p>
+          <p>On Seed-ZH and Seed-EN, M5-TTS achieves a CER of <strong>1.37%</strong> and a WER of <strong>2.91%</strong>, respectively, outperforming MOSS-TTS-Nano with only half the language-model parameters. On four cores of an Intel Xeon Gold 6530, M5-TTS achieves a real-time factor of <strong>0.653</strong> and a first-chunk latency of <strong>225 ms</strong>, demonstrating practical CPU-only streaming synthesis. Subjective listening experiments suggest improved naturalness and expressiveness over Kokoro-TTS and so on. We will release the complete training, post-training, and inference pipelines, together with checkpoints for zero-shot voice cloning and a specific speaker, to facilitate reproducible research and the development of on-device speech generation and embodied voice interaction.</p>
+        </div>
+      </section>
+
+      <nav class="contents" aria-label="Table of contents">
+        <div class="contents-heading"><svg class="icon"><use href="#icon-model"/></svg><h2>On this page</h2><span>A quick guide to M5-TTS</span></div>
+        <div class="contents-grid">
+          <a href="#abstract"><span>01</span><div>Abstract<small>Research overview</small></div><svg class="icon"><use href="#icon-arrow"/></svg></a>
+          <a href="#tokenizer"><span>02</span><div>Speech tokenizer<small>A compact representation</small></div><svg class="icon"><use href="#icon-arrow"/></svg></a>
+          <a href="#architecture"><span>03</span><div>Model architecture<small>Backbone + multi-token prediction</small></div><svg class="icon"><use href="#icon-arrow"/></svg></a>
+          <a href="#examples"><span>04</span><div>Audio examples<small>5 languages + Sichuanese · 24 samples</small></div><svg class="icon"><use href="#icon-arrow"/></svg></a>
+        </div>
+        <div class="contents-languages"><span>Jump to a language or dialect</span><a href="#examples-en">English</a><a href="#examples-de">German</a><a href="#examples-fr">French</a><a href="#examples-ja">Japanese</a><a href="#examples-ko">Korean</a><a href="#examples-zh_sichuan">Sichuanese</a></div>
+      </nav>
+
+      <section class="section" id="tokenizer" aria-labelledby="tokenizer-title">
+        <div class="section-heading"><div><span class="section-kicker">FROM WAVEFORMS TO TOKENS</span><h2 id="tokenizer-title">Speech tokenizer</h2></div><span class="section-number" aria-hidden="true">02</span></div>
+        <p class="section-intro">A low-frame-rate, causal representation for streaming speech. M5-TTS adopts <strong>Qwen-TTS-Tokenizer-12Hz</strong>, encoding each frame into one semantic token and 15 complementary acoustic tokens.</p>
+        <figure class="figure-card">
+          <div class="figure-topline"><span><span class="figure-dot"></span> Qwen-TTS-Tokenizer-12Hz</span><button class="text-button" type="button" data-zoom="assets/tokenizer.png" data-caption="Figure 1. Qwen-TTS-Tokenizer-12Hz adopted by M5-TTS." aria-label="Expand speech tokenizer diagram">Expand figure <svg class="icon small"><use href="#icon-expand"/></svg></button></div>
+          <button class="figure-image-button" type="button" data-zoom="assets/tokenizer.png" data-caption="Figure 1. Qwen-TTS-Tokenizer-12Hz adopted by M5-TTS." aria-label="View full-size speech tokenizer diagram"><img src="assets/tokenizer.png" alt="Qwen-TTS-Tokenizer-12Hz: input audio passes through a downsampling convolutional encoder and windowed Transformer, then a semantic VQ and acoustic RVQ. The causal decoder reconstructs audio, with WavLM semantic distillation and adversarial training objectives." width="1902" height="827" loading="lazy"></button>
+          <figcaption><span>Figure 1</span> A semantic VQ branch and an acoustic RVQ branch provide 16 codec tokens per frame for causal waveform reconstruction. Original figure from the technical report.</figcaption>
+        </figure>
+        <div class="feature-row"><div><span class="feature-index">01</span><div><h3>Semantic + acoustic</h3><p>One semantic codebook and 15 acoustic codebooks preserve complementary speech information.</p></div></div><div><span class="feature-index">02</span><div><h3>Low frame rate</h3><p>12.5 frames per second keeps the temporal sequence compact for efficient generation.</p></div></div><div><span class="feature-index">03</span><div><h3>Causal reconstruction</h3><p>No look-ahead in the encoder or decoder, enabling incremental waveform synthesis.</p></div></div></div>
+      </section>
+
+      <section class="section" id="architecture" aria-labelledby="architecture-title">
+        <div class="section-heading"><div><span class="section-kicker">SMALL MODEL, STRUCTURED GENERATION</span><h2 id="architecture-title">Model architecture</h2></div><span class="section-number" aria-hidden="true">03</span></div>
+        <p class="section-intro">A <strong>temporal backbone Transformer</strong> models speech across frames, while a lightweight <strong>multi-token prediction (MTP) module</strong> refines the acoustic representation within each frame.</p>
+        <figure class="figure-card">
+          <div class="figure-topline"><span><span class="figure-dot cyan"></span> M5-TTS · 50M language-model parameters</span><button class="text-button" type="button" data-zoom="assets/architecture.png" data-caption="Figure 2. M5-TTS architecture: temporal backbone and local MTP module." aria-label="Expand model architecture diagram">Expand figure <svg class="icon small"><use href="#icon-expand"/></svg></button></div>
+          <button class="figure-image-button model-image" type="button" data-zoom="assets/architecture.png" data-caption="Figure 2. M5-TTS architecture: temporal backbone and local MTP module." aria-label="View full-size model architecture diagram"><img src="assets/architecture.png" alt="M5-TTS architecture: accent, speaker, language and text embeddings condition the backbone Transformer. It predicts codebook 0, then the local MTP module generates codebooks 1 through 15. The codec decoder reconstructs the waveform." width="1588" height="990" loading="lazy"></button>
+          <figcaption><span>Figure 2</span> The temporal backbone predicts codebook 0; the local MTP module generates codebooks 1–15 within each frame, which are then decoded into speech. Original figure from the technical report.</figcaption>
+        </figure>
+        <div class="architecture-note"><svg class="icon"><use href="#icon-model"/></svg><p><strong>One frame, sixteen tokens.</strong> The backbone retains its attention cache across frames; the MTP cache resets for each new frame. This separates temporal modeling from within-frame acoustic refinement without expanding all 16 codebooks into separate backbone time steps.</p></div>
+      </section>
+
+      <section class="section examples-section" id="examples" aria-labelledby="examples-title">
+        <div class="section-heading"><div><span class="section-kicker">LISTEN ACROSS LANGUAGES &amp; DIALECTS</span><h2 id="examples-title">Multilingual &amp; dialect examples</h2></div><span class="section-number" aria-hidden="true">04</span></div>
+        <p class="section-intro">Compare <strong>M5-TTS</strong> with <strong>MOSS-TTS-Nano</strong> across English, German, French, Japanese, and Korean, using the same reference voice and target text. Explore four additional <strong>Sichuanese</strong> examples with reference prompts and M5-TTS outputs; baseline audio is not provided for this dialect.</p>
+        <div class="listening-banner"><svg class="icon"><use href="#icon-headphones"/></svg><p>Headphones recommended<span>Read the prompt and target texts, then listen to the reference and generated speech.</span></p><span class="sample-total">5 languages + Sichuanese <span>·</span> 24 samples</span></div>
+        <div class="language-tabs" role="tablist" aria-label="Choose an example language or dialect">
+          <button type="button" id="tab-en" role="tab" aria-selected="true" aria-controls="audio-panel" data-language="en"><span class="language-code">EN</span> English <span class="tab-count">04</span></button>
+          <button type="button" id="tab-de" role="tab" aria-selected="false" aria-controls="audio-panel" tabindex="-1" data-language="de"><span class="language-code">DE</span> German <span class="tab-count">04</span></button>
+          <button type="button" id="tab-fr" role="tab" aria-selected="false" aria-controls="audio-panel" tabindex="-1" data-language="fr"><span class="language-code">FR</span> French <span class="tab-count">04</span></button>
+          <button type="button" id="tab-ja" role="tab" aria-selected="false" aria-controls="audio-panel" tabindex="-1" data-language="ja"><span class="language-code">JA</span> Japanese <span class="tab-count">04</span></button>
+          <button type="button" id="tab-ko" role="tab" aria-selected="false" aria-controls="audio-panel" tabindex="-1" data-language="ko"><span class="language-code">KO</span> Korean <span class="tab-count">04</span></button>
+          <button type="button" id="tab-zh_sichuan" role="tab" aria-selected="false" aria-controls="audio-panel" tabindex="-1" data-language="zh_sichuan"><span class="language-code">SC</span> Sichuanese <span class="tab-count">04</span></button>
+          <button type="button" id="tab-all" role="tab" aria-selected="false" aria-controls="audio-panel" tabindex="-1" data-language="all">All languages <span class="tab-count">24</span></button>
+        </div>
+        <div class="examples-toolbar"><p id="sample-count" role="status">English · 4 listening examples</p><span id="playback-status" aria-live="polite"><span class="idle-dot"></span> Ready to listen</span></div>
+        <div id="audio-panel" role="tabpanel" aria-labelledby="tab-en" tabindex="0"><div id="audio-samples"></div></div>
+        <noscript><p class="notice">Enable JavaScript to browse all 24 audio examples. You can still open the <a href="en/m5tts__lang_en__en_to_en__003/m5.wav">first M5-TTS sample</a>, <a href="en/m5tts__lang_en__en_to_en__003/moss.wav">MOSS sample</a>, and <a href="en/m5tts__lang_en__en_to_en__003/reference.wav">reference prompt</a> directly.</p></noscript>
+        <aside class="selection-note"><svg class="icon"><use href="#icon-info"/></svg><div><strong>A note on these examples</strong><p>These are curated listening samples, not an unbiased benchmark. Prompt text corresponds to the reference voice-conditioning audio; target text is the text to be synthesized. The reference audio is not a ground-truth reading of the target text.</p></div></aside>
+      </section>
+
+      <section class="resources-section" id="resources" aria-labelledby="resources-title">
+        <div class="section-heading"><div><span class="section-kicker">EXPLORE FURTHER</span><h2 id="resources-title">Resources</h2></div><span class="resource-lab">ASLP LAB</span></div>
+        <div class="resource-grid">
+          <a href="M5_TTS__A_Mini_Scale_Multilingual_and_Multi_Dialect_Text_to_Speech_Language_Model_with_Multi_Token_Prediction%20(3).pdf" target="_blank" rel="noopener"><svg class="icon"><use href="#icon-paper"/></svg><div><strong>Technical report</strong><span>Methods, experiments &amp; results</span></div><svg class="icon small"><use href="#icon-arrow"/></svg></a>
+          <a href="https://github.com/ASLP-lab/M5-TTS" target="_blank" rel="noopener noreferrer"><svg class="icon"><use href="#icon-code"/></svg><div><strong>Source code</strong><span>Training &amp; inference pipelines</span></div><svg class="icon small"><use href="#icon-arrow"/></svg></a>
+          <a href="https://huggingface.co/ASLP-lab/M5-TTS" target="_blank" rel="noopener noreferrer"><svg class="icon"><use href="#icon-model"/></svg><div><strong>Model weights</strong><span>Checkpoints on Hugging Face</span></div><svg class="icon small"><use href="#icon-arrow"/></svg></a>
+          <a href="https://huggingface.co/spaces/ASLP-lab/M5-TTS-Space" target="_blank" rel="noopener noreferrer"><svg class="icon"><use href="#icon-play"/></svg><div><strong>Interactive demo</strong><span>Project demo linked in the report</span></div><svg class="icon small"><use href="#icon-arrow"/></svg></a>
+        </div>
+        <p class="release-note">Project links are reproduced from the technical report. Code, checkpoints, and the interactive demo are subject to their release availability.</p>
+      </section>
+    </div>
+  </main>
+  <footer class="site-footer"><div><a class="footer-brand" href="#top">M5-TTS<span>A small model. A multilingual voice.</span></a><p>ASLP Lab · November 2026<br><span>Demo layout inspired by <a href="https://hujingbin1.github.io/OmniCodec-Demo-Page/" target="_blank" rel="noopener noreferrer">OmniCodec</a>.</span></p></div></footer>
+  <a href="#top" class="back-to-top" aria-label="Back to top"><svg class="icon"><use href="#icon-up"/></svg></a>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <dialog id="figure-dialog" aria-labelledby="dialog-caption"><div class="dialog-topline"><p id="dialog-caption"></p><button class="icon-button" id="close-figure" type="button" aria-label="Close expanded figure"><svg class="icon"><use href="#icon-close"/></svg></button></div><img id="expanded-figure" alt=""><a id="original-figure" class="text-button" target="_blank" rel="noopener">Open original image <svg class="icon small"><use href="#icon-arrow"/></svg></a></dialog>
+</body>
+</html>
