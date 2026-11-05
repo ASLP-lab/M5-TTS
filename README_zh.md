@@ -58,81 +58,91 @@
 
 ## 📊 实验结果
 
-以下结果依据技术报告整理。**Seed 和 MiniMax 主对照表使用 M5-TTS GRPO 零样本音色克隆模型。** CER/WER 单位为百分比，越低越好；SIM 为音色相似度，越高越好。成对比较中的较优结果加粗；`—` 表示缺失测量，不表示模型不支持该能力。
+以下表格完整收录技术报告**表 2–5 中所有模型配置及其测试结果**，并列出报告中的 CPU 性能实测。CER/WER 单位为百分比，越低越好；SIM 为说话人相似度，越高越好。**加粗指标**表示该列所列结果中的最优值，方言结果按方言分别比较；`—` 表示未报告的测量，不表示模型不支持该能力。
 
-| 模型 | LM 参数量（M）↓ |
-| :--- | :---: |
-| MOSS-TTS-Nano | 100 |
-| **M5-TTS** | **50** |
-
-以上参数量均不含语音 codec。
+**Voice Cloning（音色克隆）**与 **Custom Voice（固定音色）**使用不同的说话人条件，分别报告，固定音色结果并非相同条件下的零样本克隆对比。具有多个预置音色的系统每种语言选择一个音色；未加脚注的 Custom Voice 配置使用单个固定音色。
 
 ### Seed-TTS Eval
 
-测试集：[Seed-TTS Eval](https://github.com/BytedanceSpeech/seed-tts-eval)。
+测试集：[Seed-TTS Eval](https://github.com/BytedanceSpeech/seed-tts-eval)。下表包含报告中的全部 **12 行模型配置**。
 
-| 子集 | 指标 | MOSS-TTS-Nano | M5-TTS（GRPO） |
-| :--- | :--- | ---: | ---: |
-| Seed-ZH | CER (%) ↓ | 3.62 | **1.37** |
-| Seed-ZH | SIM ↑ | 0.64 | **0.65** |
-| Seed-EN | WER (%) ↓ | 4.50 | **2.91** |
-| Seed-EN | SIM ↑ | 0.50 | **0.53** |
-| Seed-Hard | CER (%) ↓ | **15.77** | 17.48 |
-| Seed-Hard | SIM ↑ | **0.63** | 0.59 |
+| 模型 | 主模型参数量（M） | 设置 | Seed-ZH CER (%) ↓ | Seed-ZH SIM ↑ | Seed-EN WER (%) ↓ | Seed-EN SIM ↑ | Seed-Hard CER (%) ↓ | Seed-Hard SIM ↑ |
+| :--- | :---: | :--- | ---: | ---: | ---: | ---: | ---: | ---: |
+| **M5-TTS (CPT)** | 50 | Voice Cloning | 1.70 | 0.64 | 3.60 | 0.53 | 20.92 | 0.57 |
+| **M5-TTS (GRPO)** | 50 | Voice Cloning | 1.37 | 0.65 | 2.91 | 0.53 | 17.48 | 0.59 |
+| **M5-TTS** | 50 | Custom Voice | 1.26 | — | 1.88 | — | 18.19 | — |
+| Audio8-TTS Preview | 170 | Voice Cloning | **1.21** | **0.68** | 1.96 | **0.57** | 19.63 | **0.63** |
+| MOSS-TTS-Nano | 100 | Voice Cloning | 3.62 | 0.64 | 4.50 | 0.50 | 15.77 | **0.63** |
+| Pocket TTS | 100 | Voice Cloning | — | — | **1.86** | 0.47 | — | — |
+| Hojo-TTS-Light | 80 | Voice Cloning | 2.15 | 0.40 | 3.63 | 0.17 | 21.10 | 0.36 |
+| Pocket TTS | 100 | Custom Voice<sup>a</sup> | — | — | 1.90 | — | — | — |
+| Kokoro-TTS | 82 | Custom Voice<sup>b</sup> | 1.40 | — | 2.04 | — | **6.33** | — |
+| Hojo-TTS-Light | 40 | Custom Voice<sup>c</sup> | 1.78 | — | 2.97 | — | 22.70 | — |
+| Sano TTS | 2.27 | Custom Voice<sup>d</sup> | 2.42 | — | 2.40 | — | 7.08 | — |
+| Tiny TTS | 1.6 | Custom Voice | — | — | 3.30 | — | — | — |
 
-相比 Nano，M5-TTS 的 Seed-ZH CER 和 Seed-EN WER 分别相对降低 **62.2%** 和 **35.3%**；在 **Seed-Hard** 上，Nano 的内容准确度与音色相似度仍更好。
+参数量单位统一为**百万（M）**，不包含语音 codec。Audio8-TTS Preview 使用 [Preview-0.1B checkpoint](https://huggingface.co/Edge0/Audio8-TTS-Preview-0.1b)，报告中的主模型参数量为 170M。
+
+预置音色选择：
+
+- <sup>a</sup> Pocket TTS：EN `alba`。
+- <sup>b</sup> Kokoro-TTS：ZH `zf_xiaobei`；EN `af_heart`。
+- <sup>c</sup> Hojo-TTS-Light（40M）：ZH `hojo_zh_f_01`；EN `hojo_en_m_02`。
+- <sup>d</sup> Sano TTS：ZH `Xiaoya`；EN `Amy large`。
+
+**M5-TTS（GRPO）**的 LM 参数量为 MOSS-TTS-Nano 的一半，Seed-ZH CER 和 Seed-EN WER 分别相对降低 **62.2%** 和 **35.3%**。Nano 在 **Seed-Hard** 的 CER 和 SIM 上仍更好。相比 Audio8-TTS Preview，M5-TTS（GRPO）的 Seed-Hard CER 更低，但 Seed-ZH/EN 错误率更高，三个子集的 SIM 也更低。
 
 ### MiniMax 多语种评测
 
-测试集：[MiniMax TTS-Multilingual-Test-Set](https://huggingface.co/datasets/MiniMaxAI/TTS-Multilingual-Test-Set)。
+测试集：[MiniMax TTS-Multilingual-Test-Set](https://huggingface.co/datasets/MiniMaxAI/TTS-Multilingual-Test-Set)。以下两张表均包含报告中的全部 **8 行模型配置**。ZH / EN / DE / FR / JA / KO 分别为中文 / 英语 / 德语 / 法语 / 日语 / 韩语；ZH、JA、KO 使用 CER，EN、DE、FR 使用 WER。
 
-| 语言 | 错误率指标（%）↓ | Nano 错误率 | M5 错误率 | Nano SIM ↑ | M5 SIM ↑ |
-| :--- | :--- | ---: | ---: | ---: | ---: |
-| 中文 | CER | **1.80** | 2.05 | **0.73** | 0.71 |
-| 英语 | WER | 5.34 | **3.06** | **0.65** | 0.63 |
-| 德语 | WER | 11.18 | **3.81** | 0.54 | **0.63** |
-| 法语 | WER | 18.64 | **8.14** | 0.51 | **0.53** |
-| 日语 | CER | 40.22 | **9.70** | 0.70 | **0.72** |
-| 韩语 | CER | 8.21 | **2.88** | **0.67** | 0.66 |
+#### 内容准确度 — CER/WER (%) ↓
 
-M5-TTS 在六种语言中的**五种语言**上取得更低的内容错误率。EN / DE / FR / JA / KO 相对降幅分别为 **42.7% / 65.9% / 56.3% / 75.9% / 64.9%**。Nano 的中文 CER 仍更低，音色相似度则因语言而异。
-
-<details>
-<summary>CPT、GRPO 与精品说话人结果</summary>
-
-**Seed-TTS Eval**
-
-| M5-TTS 版本 | 设置 | ZH CER（%） | ZH SIM | EN WER（%） | EN SIM | Hard CER（%） | Hard SIM |
+| 模型 | 设置 | ZH CER | EN WER | DE WER | FR WER | JA CER | KO CER |
 | :--- | :--- | ---: | ---: | ---: | ---: | ---: | ---: |
-| CPT | Voice Cloning | 1.70 | 0.64 | 3.60 | 0.53 | 20.92 | 0.57 |
-| GRPO | Voice Cloning | 1.37 | 0.65 | 2.91 | 0.53 | 17.48 | 0.59 |
-| Speaker-specific | Custom Voice | 1.26 | — | 1.88 | — | 18.19 | — |
+| **M5-TTS (CPT)** | Voice Cloning | 2.54 | 3.67 | 4.60 | 8.15 | 12.71 | 3.10 |
+| **M5-TTS (GRPO)** | Voice Cloning | 2.05 | 3.06 | 3.81 | 8.14 | 9.70 | 2.88 |
+| **M5-TTS** | Custom Voice | 1.16 | 2.24 | **0.70** | 5.33 | 10.27 | **2.09** |
+| MOSS-TTS-Nano | Voice Cloning | 1.80 | 5.34 | 11.18 | 18.64 | 40.22 | 8.21 |
+| Pocket TTS | Voice Cloning | — | 2.41 | 3.50 | 6.71 | — | — |
+| Pocket TTS | Custom Voice<sup>a</sup> | — | 1.99 | 4.14 | 7.88 | — | — |
+| Sano TTS | Custom Voice<sup>b</sup> | 1.41 | **1.85** | 3.18 | 8.91 | — | — |
+| Kokoro-TTS | Custom Voice<sup>c</sup> | **1.03** | 2.58 | — | **4.79** | **3.72** | — |
 
-**MiniMax**
+#### 说话人相似度 — SIM ↑
 
-每个单元格为 `CER/WER（%）/ SIM`；ZH / JA / KO 使用 CER，EN / DE / FR 使用 WER。
+| 模型 | 设置 | ZH | EN | DE | FR | JA | KO |
+| :--- | :--- | ---: | ---: | ---: | ---: | ---: | ---: |
+| **M5-TTS (CPT)** | Voice Cloning | 0.70 | 0.62 | **0.63** | 0.51 | **0.72** | 0.66 |
+| **M5-TTS (GRPO)** | Voice Cloning | 0.71 | 0.63 | **0.63** | **0.53** | **0.72** | 0.66 |
+| **M5-TTS** | Custom Voice | — | — | — | — | — | — |
+| MOSS-TTS-Nano | Voice Cloning | **0.73** | **0.65** | 0.54 | 0.51 | 0.70 | **0.67** |
+| Pocket TTS | Voice Cloning | — | 0.61 | 0.54 | **0.53** | — | — |
+| Pocket TTS | Custom Voice<sup>a</sup> | — | — | — | — | — | — |
+| Sano TTS | Custom Voice<sup>b</sup> | — | — | — | — | — | — |
+| Kokoro-TTS | Custom Voice<sup>c</sup> | — | — | — | — | — | — |
 
-| M5-TTS 版本 | ZH | EN | DE | FR | JA | KO |
-| :--- | ---: | ---: | ---: | ---: | ---: | ---: |
-| CPT | 2.54 / 0.70 | 3.67 / 0.62 | 4.60 / 0.63 | 8.15 / 0.51 | 12.71 / 0.72 | 3.10 / 0.66 |
-| GRPO | 2.05 / 0.71 | 3.06 / 0.63 | 3.81 / 0.63 | 8.14 / 0.53 | 9.70 / 0.72 | 2.88 / 0.66 |
-| Speaker-specific | 1.16 / — | 2.24 / — | 0.70 / — | 5.33 / — | 10.27 / — | 2.09 / — |
+预置音色选择：
 
-精品说话人模型以 **Custom Voice** 设置单独评测，与零样本克隆分开报告；两者并非相同音色条件下的克隆对比。完整基线设置和预置音色选择见技术报告。
+- <sup>a</sup> Pocket TTS：EN `alba`；DE `juergen`；FR `estelle`。
+- <sup>b</sup> Sano TTS：ZH `Xiaoya`；EN `Amy large`；DE `Thorsten`；FR `Siwis`。
+- <sup>c</sup> Kokoro-TTS：ZH `zf_xiaobei`；EN `af_heart`；FR `ff_siwis`；JA `jf_alpha`。
 
-</details>
+**M5-TTS（GRPO）**在六种语言中的**五种语言**上取得比 Nano 更低的内容错误率，EN / DE / FR / JA / KO 相对降幅分别为 **42.7% / 65.9% / 56.3% / 75.9% / 64.9%**。Nano 的中文 CER 仍更低；M5-TTS 的德语、法语和日语 SIM 更高。Pocket TTS 在已报告的 EN/DE/FR 克隆评测中错误率更低，M5-TTS 则在 EN/DE 的 SIM 上更高，FR 的 SIM 在当前显示精度下相同。
+
+相比 CPT，GRPO 降低了三个 Seed 子集和六种 MiniMax 语言的错误率，SIM 在当前显示精度下保持或提高。这些结果反映完整后训练方案的效果，未单独验证各项奖励的贡献。
 
 ### 中文方言评测
 
-| 方言 | 模型 | Easy CER（%）↓ | Easy SIM ↑ | Hard CER（%）↓ | Hard SIM ↑ |
-| :--- | :--- | ---: | ---: | ---: | ---: |
-| Yue | **M5-TTS (GRPO)** | **8.55** | 0.47 | **8.70** | 0.51 |
-| Yue | CosyVoice2-Yue | 10.33 | **0.62** | 9.49 | **0.67** |
-| Yue | Llasa-1B-Yue | 10.89 | 0.51 | 12.78 | 0.55 |
-| Chuan | **M5-TTS (GRPO)** | 5.08 | 0.58 | **7.78** | 0.59 |
-| Chuan | CosyVoice2-WSC | **4.28** | **0.64** | 8.78 | **0.65** |
+| 方言 | 模型 | ASR 评测模型 | Easy CER (%) ↓ | Easy SIM ↑ | Hard CER (%) ↓ | Hard SIM ↑ |
+| :--- | :--- | :--- | ---: | ---: | ---: | ---: |
+| Yue | **M5-TTS (GRPO)** | U2pp-Conformer-Yue | **8.55** | 0.47 | **8.70** | 0.51 |
+| Yue | CosyVoice2-Yue | U2pp-Conformer-Yue | 10.33 | **0.62** | 9.49 | **0.67** |
+| Yue | Llasa-1B-Yue | U2pp-Conformer-Yue | 10.89 | 0.51 | 12.78 | 0.55 |
+| Chuan | **M5-TTS (GRPO)** | FireRedASR-AED | 5.08 | 0.58 | **7.78** | 0.59 |
+| Chuan | CosyVoice2-WSC | FireRedASR-AED | **4.28** | **0.64** | 8.78 | **0.65** |
 
-Yue 为粤语，Chuan 为四川话。同一方言的所有系统使用相同 ASR：粤语为 **U2pp-Conformer-Yue**，四川话为 **FireRedASR-AED**。M5-TTS 的粤语 CER 在所列系统中最低，四川话 Hard CER 也更低；方言 SIM 仍低于对应基线。
+Yue 为粤语，Chuan 为四川话，同一方言的所有系统使用相同 ASR。M5-TTS 在粤语两个子集上的 CER 均为所列系统中最低，四川话 Hard CER 也低于 CosyVoice2-WSC；四川话 Easy CER 和方言 SIM 仍落后于对应基线。
 
 ### 主观评测
 
@@ -144,15 +154,15 @@ Yue 为粤语，Chuan 为四川话。同一方言的所有系统使用相同 ASR
 | MOSS-TTS-Nano | **3.00** | 2.85 | 2.65 | 2.80 |
 | **M5-TTS** | 2.90 | **3.05** | 2.95 | **2.85** |
 
-M5-TTS 的相似度与可懂度评分高于 Nano，自然度评分则较低。以上为描述性数值差异，报告未给出统计显著性结论。
+M5-TTS 的相似度、可懂度和韵律评分高于 Nano，自然度评分则较低；Kokoro-TTS 的 I-MOS 最高。以上为描述性数值差异，报告未给出统计显著性结论。
 
 ### CPU 流式性能
 
-| 硬件 | CPU 核心数 | RTF ↓ | 预热后首包延迟 ↓ |
-| :--- | :---: | ---: | ---: |
-| Intel Xeon Gold 6530 | 4 | 0.653 | 225 ms |
+| 模型 | 硬件 | CPU 核心数 | RTF ↓ | 预热后首包延迟 ↓ |
+| :--- | :--- | :---: | ---: | ---: |
+| **M5-TTS** | Intel Xeon Gold 6530 | 4 | 0.653 | 225 ms |
 
-RTF 为合成耗时与生成音频时长之比；**RTF < 1** 表示生成速度快于实时播放。计时不含模型加载与预热；这些结果对应所测服务器 CPU，不能直接代表手机或 ARM 平台表现。
+RTF 为合成耗时与生成音频时长之比；**RTF < 1** 表示生成速度快于实时播放。计时不含模型加载与预热。报告仅给出 M5-TTS 的此项 CPU 实测，未提供基线运行时对比；该结果不能直接代表手机或 ARM 平台表现。
 
 ## 🧩 方法概述
 
