@@ -14,7 +14,7 @@
 
 <p align="center">
   <a href="README.md">English</a> | 简体中文<br>
-  <a href="https://aslp-lab.github.io/M5-TTS-Demo-Page/M5_TTS__A_Mini_Scale_Multilingual_and_Multi_Dialect_Text_to_Speech_Language_Model_with_Multi_Token_Prediction_v2.pdf">技术报告</a> ·
+  <a href="https://aslp-lab.github.io/M5-TTS-Demo-Page/m5-tts-v3.pdf">技术报告</a> ·
   <a href="https://aslp-lab.github.io/M5-TTS-Demo-Page/">音频演示</a> ·
   <a href="https://huggingface.co/spaces/ASLP-lab/M5-TTS-Space">在线体验</a> ·
   <a href="https://huggingface.co/collections/ASLP-lab/m5-tts">模型合集</a>
