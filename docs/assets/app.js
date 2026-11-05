@@ -7,13 +7,19 @@
     fr: { name: 'French', native: 'Français' },
     ja: { name: 'Japanese', native: '日本語' },
     ko: { name: 'Korean', native: '한국어' },
-    zh_sichuan: { name: 'Sichuanese', native: '四川话', textLang: 'zh-CN' }
+    zh_sichuan: { name: 'Sichuanese', native: '四川话', textLang: 'zh-CN', isDialect: true }
   };
   const modelNames = { reference: 'Reference prompt', m5: 'M5-TTS', moss: 'MOSS-TTS-Nano' };
   const samples = Array.isArray(window.M5_SAMPLES) ? window.M5_SAMPLES : [];
+  const multilingualSamples = samples.filter(sample => languages[sample.language] && !languages[sample.language].isDialect);
+  const dialectSamples = samples.filter(sample => languages[sample.language]?.isDialect);
   const sampleContainer = document.getElementById('audio-samples');
+  const dialectContainer = document.getElementById('dialect-samples');
   const tabs = [...document.querySelectorAll('[data-language]')];
-  const playbackStatus = document.getElementById('playback-status');
+  const playbackGroups = [
+    { container: sampleContainer, status: document.getElementById('playback-status') },
+    { container: dialectContainer, status: document.getElementById('dialect-playback-status') }
+  ];
   const toast = document.getElementById('toast');
   let currentLanguage = 'en';
   let toastTimeout;
@@ -47,14 +53,16 @@
   }
 
   function updatePlaybackStatus() {
-    const playing = [...sampleContainer.querySelectorAll('audio')].find(audio => !audio.paused && !audio.ended);
-    playbackStatus.classList.toggle('is-playing', Boolean(playing));
-    playbackStatus.replaceChildren();
-    if (playing) {
-      playbackStatus.textContent = `Playing ${playing.dataset.modelName} · ${playing.dataset.sampleLabel}`;
-    } else {
-      playbackStatus.append(element('span', 'idle-dot'), document.createTextNode('Ready to listen'));
-    }
+    playbackGroups.forEach(({ container, status }) => {
+      const playing = [...container.querySelectorAll('audio')].find(audio => !audio.paused && !audio.ended);
+      status.classList.toggle('is-playing', Boolean(playing));
+      status.replaceChildren();
+      if (playing) {
+        status.textContent = `Playing ${playing.dataset.modelName} · ${playing.dataset.sampleLabel}`;
+      } else {
+        status.append(element('span', 'idle-dot'), document.createTextNode('Ready to listen'));
+      }
+    });
   }
 
   function audioCell(sample, model) {
@@ -76,7 +84,7 @@
     audio.setAttribute('aria-label', `${modelNames[model]}, ${languages[sample.language].name}, sample ${sample.selection_rank}`);
     audio.textContent = 'Your browser does not support audio playback.';
     audio.addEventListener('play', () => {
-      sampleContainer.querySelectorAll('audio').forEach(other => {
+      document.querySelectorAll('.sample-card audio').forEach(other => {
         if (other !== audio && !other.paused) other.pause();
       });
       cell.classList.add('playing');
@@ -155,7 +163,7 @@
   }
 
   function showLanguage(language) {
-    if (language !== 'all' && !languages[language]) return;
+    if (!tabs.some(tab => tab.dataset.language === language)) return;
     sampleContainer.querySelectorAll('audio').forEach(audio => audio.pause());
     currentLanguage = language;
     tabs.forEach(tab => {
@@ -163,7 +171,7 @@
       tab.setAttribute('aria-selected', String(selected));
       tab.tabIndex = selected ? 0 : -1;
     });
-    const visibleSamples = samples.filter(sample => language === 'all' || sample.language === language);
+    const visibleSamples = multilingualSamples.filter(sample => language === 'all' || sample.language === language);
     sampleContainer.replaceChildren(...visibleSamples.map(sampleCard));
     if (!visibleSamples.length) {
       sampleContainer.append(element('p', 'notice', 'Audio examples are unavailable. Please check that assets/samples.js is included with this page.'));
@@ -198,17 +206,24 @@
 
   function routeHash(shouldScroll) {
     const hash = window.location.hash.slice(1);
-    const languageMatch = /^examples-(en|de|fr|ja|ko|zh_sichuan|all)$/.exec(hash);
+    const languageMatch = /^examples-(en|de|fr|ja|ko|all)$/.exec(hash);
     const sample = samples.find(item => sampleId(item) === hash);
-    if (languageMatch) {
+    if (hash === 'examples-zh_sichuan') {
+      if (shouldScroll) requestAnimationFrame(() => document.getElementById('dialect-examples').scrollIntoView());
+    } else if (languageMatch) {
       if (currentLanguage !== languageMatch[1]) showLanguage(languageMatch[1]);
       if (shouldScroll) requestAnimationFrame(() => document.getElementById('examples').scrollIntoView());
     } else if (sample) {
-      if (currentLanguage !== sample.language && currentLanguage !== 'all') showLanguage(sample.language);
+      if (!languages[sample.language].isDialect && currentLanguage !== sample.language && currentLanguage !== 'all') showLanguage(sample.language);
       if (shouldScroll) requestAnimationFrame(() => document.getElementById(hash)?.scrollIntoView());
     }
   }
 
+  dialectContainer.replaceChildren(...dialectSamples.map(sampleCard));
+  document.getElementById('dialect-count').textContent = `Sichuanese · ${dialectSamples.length} listening examples`;
+  if (!dialectSamples.length) {
+    dialectContainer.append(element('p', 'notice', 'Dialect examples are unavailable. Please check that assets/samples.js is included with this page.'));
+  }
   showLanguage('en');
   routeHash(true);
   window.addEventListener('hashchange', () => routeHash(true));
@@ -234,7 +249,9 @@
 
   const backToTop = document.querySelector('.back-to-top');
   const navLinks = [...document.querySelectorAll('.top-nav a')];
-  const anchors = ['abstract', 'tokenizer', 'architecture', 'examples', 'resources'].map(id => document.getElementById(id));
+  const anchors = ['abstract', 'tokenizer', 'architecture', 'examples', 'dialect-examples']
+    .map(id => document.getElementById(id))
+    .filter(Boolean);
   let scrollPending = false;
   function updateNavigation() {
     backToTop.classList.toggle('visible', window.scrollY > 650);

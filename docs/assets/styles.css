@@ -128,6 +128,7 @@ figcaption > span { display: inline-block; color: #686277; font-weight: 650; mar
 .architecture-note p { margin: 0; font-size: 12px; color: #938a9e; line-height: 1.8; }
 .architecture-note strong { color: #6f6084; font-weight: 600; }
 .examples-section { padding-top: 76px; }
+.page-container > .examples-section:last-child { padding-bottom: 48px; }
 .listening-banner { display: flex; align-items: center; gap: 13px; background: #f6f4fc; border: 1px solid #ebe6f6; border-radius: 10px; padding: 15px 20px; }
 .listening-banner > .icon { color: #927cc4; width: 23px; height: 23px; }
 .listening-banner p { color: #706080; font-size: 12px; font-weight: 600; margin: 0; }
@@ -143,10 +144,10 @@ figcaption > span { display: inline-block; color: #686277; font-weight: 650; mar
 .tab-count { font-size: 8px; margin-left: 1px; color: #b6adbf; font-variant-numeric: tabular-nums; }
 .examples-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin: 20px 2px 16px; }
 .examples-toolbar p { margin: 0; color: #83798f; font-size: 11px; }
-#playback-status { color: #a39aaa; font-size: 10px; display: flex; align-items: center; gap: 6px; }
+.playback-status { color: #a39aaa; font-size: 10px; display: flex; align-items: center; gap: 6px; }
 .idle-dot { display: inline-block; width: 5px; height: 5px; background: #b6abbf; border-radius: 50%; }
-#playback-status.is-playing { color: var(--purple); }
-#playback-status.is-playing::before { content: ""; height: 6px; width: 6px; background: #8c6ed2; border-radius: 50%; box-shadow: 0 0 0 3px #ede5fa; }
+.playback-status.is-playing { color: var(--purple); }
+.playback-status.is-playing::before { content: ""; height: 6px; width: 6px; background: #8c6ed2; border-radius: 50%; box-shadow: 0 0 0 3px #ede5fa; }
 .sample-card { border: 1px solid #e5e3ec; border-radius: 12px; margin-bottom: 18px; background: #fff; overflow: hidden; scroll-margin-top: 96px; transition: box-shadow .2s, border-color .2s; }
 .sample-card:target { border-color: #a68cdb; box-shadow: 0 0 0 3px #c5b2e927; }
 .sample-card-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 20px 10px; }
@@ -221,7 +222,7 @@ body.modal-open { overflow: hidden; }
 .stats-strip small { font-size: 10px; color: #777486; }
 .capabilities, .contents-heading > span, .contents-grid small, .contents-languages span,
 .figure-topline > span, figcaption, .feature-row p, .architecture-note p,
-.listening-banner p > span, .sample-total, .examples-toolbar p, #playback-status,
+.listening-banner p > span, .sample-total, .examples-toolbar p, .playback-status,
 .language-tabs > button, .tab-count, .native-label, .target-label, .duration,
 .resource-grid span, .release-note, .site-footer p, .site-footer p span, .footer-brand span { color: #797285; }
 .feature-row p, figcaption { font-size: 12px; }
