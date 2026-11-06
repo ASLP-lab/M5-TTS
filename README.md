@@ -17,12 +17,15 @@
   <a href="https://aslp-lab.github.io/M5-TTS-Demo-Page/m5-tts-v3.pdf">Technical Report</a> ·
   <a href="https://aslp-lab.github.io/M5-TTS-Demo-Page/">Audio Demos</a> ·
   <a href="https://huggingface.co/spaces/ASLP-lab/M5-TTS-Space">Try Online</a> ·
-  <a href="https://huggingface.co/collections/ASLP-lab/m5-tts">Model Collection</a>
+  <a href="https://huggingface.co/collections/ASLP-lab/m5-tts">Model Collection</a> ·
+  <a href="https://huggingface.co/ASLP-lab/M5-TTS">Model Repository</a>
 </p>
 
 **M5-TTS** is a compact language-model-based speech generation system for multilingual and Chinese multidialect synthesis, zero-shot voice cloning, and dedicated multilingual voices. Its **50M-parameter LM excludes the speech codec** and combines a temporal backbone with a local multi-token prediction (MTP) module.
 
 **Half the LM parameters of MOSS-TTS-Nano, with relative error reductions of 62.2% on Seed-ZH and 35.3% on Seed-EN.** M5-TTS (GRPO) achieves **1.37% CER / 2.91% WER**, compared with **3.62% / 4.50%** for Nano. Four-core CPU streaming achieves **RTF 0.653** and **225 ms warm first-chunk latency** in the reported Xeon configuration.
+
+**VoiceJudge naturalness evaluation:** our internal judge prefers M5-TTS over MOSS-TTS-Nano in **84.89% and 86.50%** of comparisons under the two A/B presentation orders.
 
 ## ✨ Features
 
@@ -36,35 +39,33 @@
 
 - **24 kHz speech output** with a causal speech-codec decoder.
 - **CPU streaming** through inference graph optimization, reusable caches, stateful codec decoding, and adaptive chunk scheduling.
-- **Global + local post-training feedback:** speaker similarity and pause rewards are combined with token-level CER process advantages.
+- **Global + local post-training feedback:** speaker-similarity and pause rewards are normalized separately before weighted aggregation, then combined with token-level CER process advantages.
 
 ## 🎧 Try M5-TTS
 
-Open the [interactive Space](https://huggingface.co/spaces/ASLP-lab/M5-TTS-Space), upload reference speech and its accurate transcript, then enter the target text and select a language and optional accent (`yue` / `chuan`). The current demo accepts up to 250 characters of target text. Listen to multilingual and dialect comparisons on the [audio demo page](https://aslp-lab.github.io/M5-TTS-Demo-Page/).
+Try reference-based voice cloning in the [interactive Space](https://huggingface.co/spaces/ASLP-lab/M5-TTS-Space), and explore multilingual and dialect comparisons on the [audio demo page](https://aslp-lab.github.io/M5-TTS-Demo-Page/).
 
-The hosted Space runs on GPU and returns a completed audio clip. The CPU streaming measurements below describe the inference system evaluated in the report.
-
-### Release status (2026-11-06)
-
-| Resource | Status |
+| Resource | Link |
 | :--- | :--- |
-| [Technical report](https://aslp-lab.github.io/M5-TTS-Demo-Page/M5_TTS__A_Mini_Scale_Multilingual_and_Multi_Dialect_Text_to_Speech_Language_Model_with_Multi_Token_Prediction_v2.pdf) | Available. |
-| [Audio demos](https://aslp-lab.github.io/M5-TTS-Demo-Page/) | Available. |
-| [Online Space](https://huggingface.co/spaces/ASLP-lab/M5-TTS-Space) | Available, with [inference source and a checkpoint](https://huggingface.co/spaces/ASLP-lab/M5-TTS-Space/tree/main). |
-| [Model collection](https://huggingface.co/collections/ASLP-lab/m5-tts) / [model repository](https://huggingface.co/ASLP-lab/M5-TTS) | Repository created; standalone model releases are planned. The model repository currently contains a model card, without weights. |
-| Training, CPT, and GRPO code | Planned for release. |
-| Packaged local / CPU streaming inference | Planned for release in this repository. |
-| Standalone voice-cloning and speaker-specific checkpoints | Planned; the Space checkpoint is not labeled by training stage. |
+| Technical report | [M5-TTS report — v3](https://aslp-lab.github.io/M5-TTS-Demo-Page/m5-tts-v3.pdf) |
+| Audio demos | [Multilingual and dialect samples](https://aslp-lab.github.io/M5-TTS-Demo-Page/) |
+| Online demo | [Hugging Face Space](https://huggingface.co/spaces/ASLP-lab/M5-TTS-Space) |
+| Model collection | [ASLP-lab / M5-TTS collection](https://huggingface.co/collections/ASLP-lab/m5-tts) |
+| Model repository | [ASLP-lab / M5-TTS](https://huggingface.co/ASLP-lab/M5-TTS) |
+
+**Release scope:** inference code, voice-cloning checkpoints, and speaker-specific checkpoints. Training, CPT, and GRPO training code are **not included** in the open-source release. VoiceJudge model weights and inference code are planned for release. Follow the model repositories and this repository for artifact availability.
 
 ## 📊 Evaluation
 
-The following tables reproduce **all model configurations and measurements reported in Tables 2–5 of the technical report**, together with its CPU timing result. CER/WER are percentages (lower is better); SIM is speaker similarity (higher is better). **Bold metric values** mark the best reported score in each column, with dialects compared separately. `—` denotes an unreported measurement, not an unsupported capability.
+The tables below retain **all reported Seed, MiniMax, and dialect model configurations**, and include the latest VoiceJudge evaluation and CPU timing results. CER, WER, and MER are percentages (lower is better); SIM is speaker similarity (higher is better). **Bold metric values** mark the best reported score in each column, with dialects compared separately. `—` denotes an unreported measurement, not an unsupported capability.
 
 **Voice Cloning** and **Custom Voice** use different speaker conditions and are reported separately; custom-voice scores are not matched zero-shot cloning comparisons. For systems with multiple preset voices, one voice is selected per language; unmarked Custom Voice configurations use a single fixed voice.
 
 ### Seed-TTS Eval
 
 Benchmark: [Seed-TTS Eval](https://github.com/BytedanceSpeech/seed-tts-eval). All **12 reported model configurations** are included below.
+
+We follow the official evaluation scripts: Mandarin transcription uses Paraformer-zh, English transcription uses OpenAI Whisper-large-v3, and SIM is the cosine similarity of embeddings from WavLM-large fine-tuned for speaker verification.
 
 | Model | Main model parameters (M) | Setting | Seed-ZH CER (%) ↓ | Seed-ZH SIM ↑ | Seed-EN WER (%) ↓ | Seed-EN SIM ↑ | Seed-Hard CER (%) ↓ | Seed-Hard SIM ↑ |
 | :--- | :---: | :--- | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -95,6 +96,8 @@ With half the LM parameters of MOSS-TTS-Nano, **M5-TTS (GRPO)** reduces Seed-ZH 
 ### MiniMax Multilingual
 
 Benchmark: [MiniMax TTS-Multilingual-Test-Set](https://huggingface.co/datasets/MiniMaxAI/TTS-Multilingual-Test-Set). All **8 reported model configurations** are shown in both tables below. ZH / EN / DE / FR / JA / KO denote Chinese / English / German / French / Japanese / Korean. ZH, JA, and KO use CER; EN, DE, and FR use WER.
+
+For MiniMax, Mandarin transcription uses a locally loaded [SeACo-Paraformer](https://arxiv.org/abs/2308.03266), without auxiliary VAD or punctuation-restoration models. English, German, French, Japanese, and Korean use OpenAI Whisper-large-v3 with the target language explicitly specified. SIM uses the same WavLM-large model and cosine-similarity procedure as Seed-TTS Eval.
 
 #### Content accuracy — CER/WER (%) ↓
 
@@ -134,27 +137,51 @@ Relative to CPT, GRPO lowers error rates on all three Seed subsets and all six M
 
 ### Chinese dialects
 
-| Dialect | Model | ASR evaluator | Easy CER (%) ↓ | Easy SIM ↑ | Hard CER (%) ↓ | Hard SIM ↑ |
-| :--- | :--- | :--- | ---: | ---: | ---: | ---: |
-| Yue | **M5-TTS (GRPO)** | U2pp-Conformer-Yue | **8.55** | 0.47 | **8.70** | 0.51 |
-| Yue | CosyVoice2-Yue | U2pp-Conformer-Yue | 10.33 | **0.62** | 9.49 | **0.67** |
-| Yue | Llasa-1B-Yue | U2pp-Conformer-Yue | 10.89 | 0.51 | 12.78 | 0.55 |
-| Chuan | **M5-TTS (GRPO)** | FireRedASR-AED | 5.08 | 0.58 | **7.78** | 0.59 |
-| Chuan | CosyVoice2-WSC | FireRedASR-AED | **4.28** | **0.64** | 8.78 | **0.65** |
+#### Cantonese (Yue) — MER (%) ↓ / SIM ↑
 
-Yue is Cantonese and Chuan is Sichuanese. All systems within each dialect use the same ASR evaluator. M5-TTS has the lowest reported Cantonese CER on both subsets and lower Sichuanese Hard CER than CosyVoice2-WSC, while its Sichuanese Easy CER and dialectal SIM remain worse than the corresponding baselines.
+Benchmark: [WenetSpeech-Yue](https://aslp-lab.github.io/WenetSpeech-Yue/). **Mixed error rate (MER)** uses Chinese characters and English words as evaluation units. All three systems use U2pp-Conformer-Yue for ASR evaluation.
 
-### Subjective evaluation
-
-**10 listeners**, scores from **1 to 5**. N-MOS: naturalness; S-MOS: speaker similarity; I-MOS: intelligibility; P-MOS: prosody and expressiveness.
-
-| Model | N-MOS ↑ | S-MOS ↑ | I-MOS ↑ | P-MOS ↑ |
+| Model | Easy MER (%) ↓ | Easy SIM ↑ | Hard MER (%) ↓ | Hard SIM ↑ |
 | :--- | ---: | ---: | ---: | ---: |
-| Kokoro-TTS | 2.85 | — | **3.10** | 2.60 |
-| MOSS-TTS-Nano | **3.00** | 2.85 | 2.65 | 2.80 |
-| **M5-TTS** | 2.90 | **3.05** | 2.95 | **2.85** |
+| **M5-TTS (GRPO)** | **8.55** | 0.47 | **8.70** | 0.51 |
+| CosyVoice2-Yue | 10.33 | **0.62** | 9.49 | **0.67** |
+| Llasa-1B-Yue | 10.89 | 0.51 | 12.78 | 0.55 |
 
-M5-TTS receives higher similarity, intelligibility, and prosody ratings than Nano, with a lower naturalness rating. Kokoro-TTS has the highest I-MOS. These are descriptive score differences; the report does not establish statistical significance.
+#### Sichuanese (Chuan) — CER (%) ↓ / SIM ↑
+
+Benchmark: [WenetSpeech-Chuan](https://github.com/ASLP-lab/WenetSpeech-Chuan). Both systems use FireRedASR-AED for ASR evaluation.
+
+| Model | Easy CER (%) ↓ | Easy SIM ↑ | Hard CER (%) ↓ | Hard SIM ↑ |
+| :--- | ---: | ---: | ---: | ---: |
+| **M5-TTS (GRPO)** | 5.08 | 0.58 | **7.78** | 0.59 |
+| CosyVoice2-WSC | **4.28** | **0.64** | 8.78 | **0.65** |
+
+M5-TTS has the lowest reported Cantonese MER on both subsets and lower Sichuanese Hard CER than CosyVoice2-WSC. Sichuanese Easy CER and dialectal speaker similarity remain areas for improvement.
+
+### VoiceJudge-based naturalness evaluation
+
+**VoiceJudge** is our internal A/B evaluator of speech naturalness and expressiveness, built from self-supervised speech representations and a Transformer scoring module, and trained on approximately **100,000 human-annotated preference pairs**. This experiment evaluates its **naturalness** dimension on **311 audio pairs**, strictly deduplicated against its preference-training data. Each pair contains M5-TTS and MOSS-TTS-Nano outputs for the same target text.
+
+Each pair is assessed in both presentation orders, and A/B choices are mapped back to system identities before aggregation.
+
+| Metric | Original: A=MOSS, B=M5 | Reversed: A=M5, B=MOSS |
+| :--- | ---: | ---: |
+| Evaluated pairs | 311 | 311 |
+| **M5-TTS wins** | **264 (84.89%)** | **269 (86.50%)** |
+| MOSS-TTS-Nano wins | 47 (15.11%) | 42 (13.50%) |
+| Ties | 0 | 0 |
+| Mean reward: M5-TTS | 0.2586 | 0.3231 |
+| Mean reward: MOSS-TTS-Nano | -0.6542 | -0.6234 |
+
+| Preferred system: original → reversed | Pairs | Percentage |
+| :--- | ---: | ---: |
+| M5-TTS → M5-TTS | 255 | 81.99% |
+| MOSS-TTS-Nano → MOSS-TTS-Nano | 33 | 10.61% |
+| MOSS-TTS-Nano → M5-TTS | 14 | 4.50% |
+| M5-TTS → MOSS-TTS-Nano | 9 | 2.89% |
+| **Same preferred system (subtotal)** | **288** | **92.60%** |
+
+VoiceJudge favors M5-TTS under both orders, with a **1.61 percentage-point** change in win rate after reversal. The same **311 pairs** are scored twice; the preferred system is unchanged on **92.60%** of them. Reward values are VoiceJudge scores. VoiceJudge is used for evaluation in this experiment.
 
 ### CPU streaming
 
@@ -169,7 +196,7 @@ RTF is synthesis time divided by generated audio duration; **RTF < 1** indicates
 ### Hierarchical speech generation
 
 <p align="center">
-  <img src="https://aslp-lab.github.io/M5-TTS-Demo-Page/assets/architecture.png" alt="M5-TTS hierarchical backbone and MTP architecture" width="900">
+  <img src="assets/architecture.png" alt="M5-TTS hierarchical backbone and MTP architecture" width="900">
 </p>
 
 The temporal backbone predicts **codebook 0** at each frame. The local MTP Transformer then autoregressively generates **codebooks 1–15**. Historical frame embeddings are summed before temporal modeling, and completed frames are decoded incrementally by [Qwen3-TTS's speech tokenizer](https://github.com/QwenLM/Qwen3-TTS).
@@ -178,10 +205,16 @@ The temporal backbone predicts **codebook 0** at each frame. The local MTP Trans
 
 1. **Basic pre-training:** approximately **400,000 hours** of multilingual and regional speech, including Emilia, Emilia-YODAS, in-house recordings, and WenetSpeech datasets.
 2. **Continued pre-training:** a curated **65,000-hour subset** of the pre-training corpus, emphasizing recording quality, expressiveness, and challenging pronunciation. This is a subset, not additional independent training data.
-3. **GRPO:** utterance-level **SIM + pause** feedback provides a global advantage. ASR edit alignment produces per-character group-relative feedback; negative advantages propagate backward within a clause with exponential decay, then map to codec frames. The local CER process advantage is **added** to the global advantage, and all codebooks in a frame share the combined signal.
+3. **GRPO:** normalize utterance-level **SIM** and **pause** rewards separately within the candidate group for the same prompt, then weight and sum them to obtain the global advantage. ASR edit alignment produces per-character group-relative advantages; negative feedback propagates backward within a clause with exponential decay, then maps to codec frames. Add this local CER process advantage to the global advantage. All 16 codebooks in a frame share the resulting signal.
 4. **Speaker-specific fine-tuning:** curated recordings of a designated speaker support a dedicated multilingual voice.
 
-The global reward weights are SIM **1.0** and pause **0.5**; the local CER advantage weight is **0.5**, with KL coefficient **0.01**. Sentence-level CER broadcasting is disabled. Pre-training conditions on `accent → language → text`; speaker-specific fine-tuning adds the speaker field: `accent → speaker → language → text`.
+Global advantage: `1.0 × norm(SIM) + 0.5 × norm(Pause)`. Each `norm` is computed separately over candidates for the same prompt; the weighted sum is used directly, with no further normalization. The local CER advantage weight is **0.5**, and the KL coefficient is **0.01**. Sentence-level CER broadcasting is disabled.
+
+Pre-training conditions on `accent → language → text`; speaker-specific fine-tuning adds the speaker field: `accent → speaker → language → text`.
+
+<p align="center">
+  <img src="assets/grpo.png" alt="GRPO: separate group normalization of SIM and pause rewards before weighting, plus local CER process feedback" width="1000">
+</p>
 
 ### Efficient inference
 
@@ -195,7 +228,7 @@ Planned directions include **8-codebook inference**, **48 kHz output**, better c
 
 ## License
 
-The [Hugging Face model card](https://huggingface.co/ASLP-lab/M5-TTS/blob/main/README.md) is tagged `Apache-2.0`. Separate licenses for the GitHub code and Space artifacts have not yet been published.
+Please refer to the license terms accompanying each code and checkpoint release, including the linked model repositories and Space.
 
 ## Citation
 
@@ -207,6 +240,6 @@ If you use this work, please cite the technical report:
   author = {Wenhao Li and Jingbin Hu and Shengming Ling and Xiaming Ren and Haoyu Zhang and Jinrui Liang and Hanke Xie and Qirui Zhan and Guobin Ma and Huakang Chen and Chunbo Hao and Jianguo Zheng and Wenkang Hou and Dake Guo and Yuepeng Jiang and Linhan Ma and Yunxiang Chen and Houdun Liu and Su Feng and Chuang Ding and Pengcheng Zhu and Liumeng Xue and Lei Xie},
   year = {2026},
   howpublished = {Technical report},
-  url = {https://github.com/ASLP-lab/M5-TTS}
+  url = {https://aslp-lab.github.io/M5-TTS-Demo-Page/m5-tts-v3.pdf}
 }
 ```
