@@ -39,7 +39,7 @@
 
 - **24 kHz speech output** with a causal speech-codec decoder.
 - **CPU streaming** through inference graph optimization, reusable caches, stateful codec decoding, and adaptive chunk scheduling.
-- **Global + local post-training feedback:** speaker-similarity and pause rewards are normalized separately before weighted aggregation, then combined with token-level CER process advantages.
+- **Global + local post-training feedback:** speaker-similarity and pause rewards are normalized separately before weighted aggregation, then combined with CER-guided local process feedback derived from character edit errors.
 
 ## 🎧 Try M5-TTS
 
@@ -205,15 +205,15 @@ The temporal backbone predicts **codebook 0** at each frame. The local MTP Trans
 
 1. **Basic pre-training:** approximately **400,000 hours** of multilingual and regional speech, including Emilia, Emilia-YODAS, in-house recordings, and WenetSpeech datasets.
 2. **Continued pre-training:** a curated **65,000-hour subset** of the pre-training corpus, emphasizing recording quality, expressiveness, and challenging pronunciation. This is a subset, not additional independent training data.
-3. **GRPO:** normalize utterance-level **SIM** and **pause** rewards separately within the candidate group for the same prompt, then weight and sum them to obtain the global advantage. ASR edit alignment produces per-character group-relative advantages; negative feedback propagates backward within a clause with exponential decay, then maps to codec frames. Add this local CER process advantage to the global advantage. All 16 codebooks in a frame share the resulting signal.
+3. **GRPO:** normalize utterance-level **SIM** and **pause** rewards separately within the candidate group for the same prompt, then weight and sum them to obtain the global advantage. ASR edit alignment assigns character-level edit counts to the target text. Group normalization converts these counts into relative advantages at each character position; negative feedback propagates backward within each clause with exponential decay and is projected onto codec frames through time alignment. This **CER-guided local process feedback** is added to the global advantage for policy updates. All 16 codec tokens within a frame share the resulting frame-level advantage.
 4. **Speaker-specific fine-tuning:** curated recordings of a designated speaker support a dedicated multilingual voice.
 
-Global advantage: `1.0 × norm(SIM) + 0.5 × norm(Pause)`. Each `norm` is computed separately over candidates for the same prompt; the weighted sum is used directly, with no further normalization. The local CER advantage weight is **0.5**, and the KL coefficient is **0.01**. Sentence-level CER broadcasting is disabled.
+Global advantage: `1.0 × norm(SIM) + 0.5 × norm(Pause)`. Each `norm` is computed separately over candidates for the same prompt; the weighted sum is used directly, with no further normalization. The CER-guided local process advantage weight is **0.5**, and the KL coefficient is **0.01**. Sentence-level CER broadcasting is disabled.
 
 Pre-training conditions on `accent → language → text`; speaker-specific fine-tuning adds the speaker field: `accent → speaker → language → text`.
 
 <p align="center">
-  <img src="assets/grpo.png" alt="GRPO: separate group normalization of SIM and pause rewards before weighting, plus local CER process feedback" width="1000">
+  <img src="assets/grpo.png" alt="GRPO: separate group normalization of SIM and pause rewards before weighting, plus CER-guided local process feedback projected from characters onto codec frames" width="1000">
 </p>
 
 ### Efficient inference
