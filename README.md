@@ -478,8 +478,19 @@ For questions and feedback, please contact **Wenhao Li** at [wenhao.li@mail.nwpu
   <a href="http://www.npu-aslp.org/english"><img src="assets/logos/aslp.jpeg" alt="ASLP@NPU — Audio, Speech and Language Processing Lab" width="500"></a>
 </p>
 
-Join the M5-TTS WeChat group for discussion and updates. Scan the QR code below, or click it to open the full-size image. If the code has expired, contact us by email for a new invitation.
+Join the M5-TTS WeChat group or add the contact below for discussion and updates. Click either image to view it full size. If the group QR code has expired, use the contact QR code or email us for a new invitation.
 
-<p align="left">
-  <a href="assets/wechat-group.jpg"><img src="assets/wechat-group.jpg" alt="QR code for the M5-TTS WeChat discussion group" width="320"></a>
-</p>
+<table>
+  <tr>
+    <th align="left">M5-TTS WeChat Group</th>
+    <th align="left">WeChat Contact</th>
+  </tr>
+  <tr>
+    <td align="left" valign="top" width="320">
+      <a href="assets/wechat-group.jpg"><img src="assets/wechat-group.jpg" alt="QR code for the M5-TTS WeChat discussion group" width="280"></a>
+    </td>
+    <td align="left" valign="top" width="320">
+      <a href="assets/wechat-contact.jpg"><img src="assets/wechat-contact.jpg" alt="WeChat contact QR code" width="280"></a>
+    </td>
+  </tr>
+</table>

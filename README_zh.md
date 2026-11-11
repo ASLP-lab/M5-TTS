@@ -478,8 +478,19 @@ RTF 为合成耗时与生成音频时长之比；**RTF < 1** 表示生成速度�
   <a href="http://www.npu-aslp.org/english"><img src="assets/logos/aslp.jpeg" alt="ASLP@NPU 音频、语音与语言处理实验室" width="500"></a>
 </p>
 
-欢迎加入 M5-TTS 微信交流群，交流使用问题与项目动态。扫描下方二维码，或点击图片查看原图。如二维码已过期，请通过邮箱联系我们获取新的邀请。
+欢迎加入 M5-TTS 微信交流群，或添加下方联系微信，交流使用问题与项目动态。点击图片可查看原图。如群二维码已过期，可添加联系微信或通过邮箱获取新的邀请。
 
-<p align="left">
-  <a href="assets/wechat-group.jpg"><img src="assets/wechat-group.jpg" alt="M5-TTS 微信交流群二维码" width="320"></a>
-</p>
+<table>
+  <tr>
+    <th align="left">M5-TTS 微信交流群</th>
+    <th align="left">联系微信</th>
+  </tr>
+  <tr>
+    <td align="left" valign="top" width="320">
+      <a href="assets/wechat-group.jpg"><img src="assets/wechat-group.jpg" alt="M5-TTS 微信交流群二维码" width="280"></a>
+    </td>
+    <td align="left" valign="top" width="320">
+      <a href="assets/wechat-contact.jpg"><img src="assets/wechat-contact.jpg" alt="联系微信二维码" width="280"></a>
+    </td>
+  </tr>
+</table>
