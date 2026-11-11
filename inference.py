@@ -116,6 +116,8 @@ class M5TTS:
             raise ValueError("Invalid temperature or topk")
         if not math.isfinite(max_audio_length_ms) or max_audio_length_ms < 800:
             raise ValueError("max_audio_length_ms must be at least 800")
+        from text_normalization import normalize_text
+        text = normalize_text(text, lang=lang, accent=accent)
         cloning = prompt_wav is not None
         if cloning:
             if not isinstance(prompt_text, str) or not prompt_text.strip():

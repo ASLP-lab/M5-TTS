@@ -200,12 +200,16 @@ class M5Onnx:
             raise ValueError("Target text and accurate reference transcript are required")
         if max_frames < 1 or first_frames < 1 or chunk_frames < 1 or left_context < 0 or seed < 0:
             raise ValueError("Invalid seed or generation/chunk limits")
+        from text_normalization import normalize_text
+        original_text = text
+        text = normalize_text(text, lang=lang)
         sentence = conditioned_text(prompt_text.strip() + text.strip(), lang)
         audio = read_reference(prompt_wav, self.sample_rate)
         self.stats = {"status": "running", "provider": self.provider, "precision": "fp32",
                       "device": self.device, "device_id": self.device_id if self.device == "cuda" else None,
                       "session_providers": self.session_providers, "provider_options": self.provider_options,
-                      "cuda_use_tf32": False if self.device == "cuda" else None}
+                      "cuda_use_tf32": False if self.device == "cuda" else None,
+                      "original_text": original_text, "normalized_text": text}
         started = time.perf_counter()
         prompt = self.encode_reference(audio)
         ids = np.array(self.tokenizer.encode(sentence).ids)
