@@ -22,6 +22,7 @@
 </p>
 
 ## Overview
+https://github.com/user-attachments/assets/adce5e15-2022-4c7d-899e-8b275238823e
 
 **M5-TTS** is a compact language-model-based speech generation system for multilingual and Chinese multidialect synthesis, zero-shot voice cloning, and dedicated multilingual voices. Its **50M-parameter LM excludes the speech codec** and combines a temporal backbone with a local multi-token prediction (MTP) module.
 
