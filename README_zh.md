@@ -423,24 +423,24 @@ RTF 为合成耗时与生成音频时长之比；**RTF < 1** 表示生成速度�
 
 <table>
   <tr>
-    <td align="left" valign="middle" width="240" height="140">
+    <td align="center" valign="middle" width="240" height="140">
       <a href="https://www.nwpu.edu.cn/"><img src="assets/logos/npu.png" alt="西北工业大学" width="220"></a>
     </td>
-    <td align="left" valign="middle" width="240" height="140">
+    <td align="center" valign="middle" width="240" height="140">
       <img src="assets/logos/pimei.jpg" alt="媲美科技 · LycheeAI Lab" width="120">
     </td>
-    <td align="left" valign="middle" width="240" height="140">
+    <td align="center" valign="middle" width="240" height="140">
       <img src="assets/logos/moonstep.jpg" alt="Moonstep AI" width="120">
     </td>
   </tr>
   <tr>
-    <td align="left" valign="middle" width="240" height="140">
+    <td align="center" valign="middle" width="240" height="140">
       <img src="assets/logos/wenet.png" alt="WeNet 开源社区" width="120">
     </td>
-    <td align="left" valign="middle" width="240" height="140">
+    <td align="center" valign="middle" width="240" height="140">
       <img src="assets/logos/nju.png" alt="南京大学" width="180">
     </td>
-    <td align="left" valign="middle" width="240" height="140">
+    <td align="center" valign="middle" width="240" height="140">
       <img src="assets/logos/originbeat.png" alt="Originbeat Inc." width="220">
     </td>
   </tr>

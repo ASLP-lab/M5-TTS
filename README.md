@@ -423,24 +423,24 @@ Planned directions include **8-codebook inference**, **48 kHz output**, better c
 
 <table>
   <tr>
-    <td align="left" valign="middle" width="240" height="140">
+    <td align="center" valign="middle" width="240" height="140">
       <a href="https://www.nwpu.edu.cn/"><img src="assets/logos/npu.png" alt="Northwestern Polytechnical University" width="220"></a>
     </td>
-    <td align="left" valign="middle" width="240" height="140">
+    <td align="center" valign="middle" width="240" height="140">
       <img src="assets/logos/pimei.jpg" alt="LycheeAI Lab" width="120">
     </td>
-    <td align="left" valign="middle" width="240" height="140">
+    <td align="center" valign="middle" width="240" height="140">
       <img src="assets/logos/moonstep.jpg" alt="Moonstep AI" width="120">
     </td>
   </tr>
   <tr>
-    <td align="left" valign="middle" width="240" height="140">
+    <td align="center" valign="middle" width="240" height="140">
       <img src="assets/logos/wenet.png" alt="WeNet Open Source Community" width="120">
     </td>
-    <td align="left" valign="middle" width="240" height="140">
+    <td align="center" valign="middle" width="240" height="140">
       <img src="assets/logos/nju.png" alt="Nanjing University" width="180">
     </td>
-    <td align="left" valign="middle" width="240" height="140">
+    <td align="center" valign="middle" width="240" height="140">
       <img src="assets/logos/originbeat.png" alt="Originbeat Inc." width="220">
     </td>
   </tr>
