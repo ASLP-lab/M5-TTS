@@ -66,7 +66,7 @@ class Generator:
         model: CSM,
         use_codeboks: int,
         text_tokenizer=None,
-        speech_tokenizer_path="Qwen/Qwen3-TTS-Tokenizer-12Hz",
+        speech_tokenizer_path="ASLP-lab/M5-TTS-Audio-Tokenizer",
         local_files_only=False,
     ):
         self._model = model

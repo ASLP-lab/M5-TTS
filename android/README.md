@@ -101,7 +101,7 @@ cd android
 先在仓库根目录安装 `pip install -r requirements.txt`，再下载完整 ONNX 模型：
 
 ```bash
-hf download ASLP-lab/M5-TTS-50M-VoiceClone-ONNX --local-dir outputs/android_onnx
+hf download ASLP-lab/M5-TTS-50M-ONNX --local-dir outputs/android_onnx
 ```
 
 下面示例使用下载后的 `outputs/android_onnx`。自己的 checkpoint 可先通过 `onnx/export.py` 导出，见[ONNX 导出说明](../README_zh.md#导出-onnx)；不要将 `.safetensors` 直接传给安卓打包器。

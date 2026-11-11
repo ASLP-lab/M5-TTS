@@ -21,7 +21,7 @@ from huggingface_hub import snapshot_download
 from scipy.signal import resample_poly
 from tokenizers import Tokenizer
 
-DEFAULT_MODEL = "ASLP-lab/M5-TTS-50M-VoiceClone-ONNX"
+DEFAULT_MODEL = "ASLP-lab/M5-TTS-50M-ONNX"
 FILES = ("manifest.json", "tokenizer.json", "text_embeddings.npy", "audio_embeddings.npy",
          "backbone.onnx", "depth_frame.onnx", "codec_encoder.onnx", "codec_decoder.onnx",
          "codec_decoder_cached.onnx", "codec_cached.json", "codec_identity.json", "checksums.json")

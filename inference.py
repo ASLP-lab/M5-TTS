@@ -16,7 +16,8 @@ from generator import Generator, Segment, load_inference_tokenizer
 from m5.model.model import CSM, ModelArgs
 
 DEFAULT_MODEL = "ASLP-lab/M5-TTS-50M-VoiceClone"
-DEFAULT_CODEC = "Qwen/Qwen3-TTS-Tokenizer-12Hz"
+DEFAULT_CUSTOM_VOICE_MODEL = "ASLP-lab/M5-TTS-50M-CustomVoice"
+DEFAULT_CODEC = "ASLP-lab/M5-TTS-Audio-Tokenizer"
 
 
 def resolve_pretrained(source, *, revision="main", cache_dir=None, local_files_only=False, patterns=None):

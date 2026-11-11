@@ -5,7 +5,7 @@ from pathlib import Path
 
 from huggingface_hub import snapshot_download
 
-DEFAULT_CODEC = "Qwen/Qwen3-TTS-Tokenizer-12Hz"
+DEFAULT_CODEC = "ASLP-lab/M5-TTS-Audio-Tokenizer"
 CODEC_FILES = ("codec_encoder.onnx", "codec_decoder.onnx", "codec_decoder_cached.onnx",
                "codec_cached.json", "codec_identity.json")
 

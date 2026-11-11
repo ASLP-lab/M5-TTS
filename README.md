@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="m5-tts-logo.png" alt="M5-TTS hummingbird logo" width="440">
+  <img src="assets/logos/m5-tts-logo.png" alt="M5-TTS hummingbird logo" width="440">
 </p>
 
 <h1 align="center">M5-TTS</h1>
@@ -98,7 +98,15 @@ For Cantonese, use `--lang Chinese --accent yue`; for Sichuan dialect, use `--la
 
 ## Quickstart
 
-Model weights are downloaded from Hugging Face automatically. Use `--model <repo_id_or_local_directory>` to select another model.
+Model weights are downloaded from Hugging Face automatically. Use `--model <repo_id_or_local_directory>` to select another model. PyTorch inference and ONNX export use [ASLP-lab/M5-TTS-Audio-Tokenizer](https://huggingface.co/ASLP-lab/M5-TTS-Audio-Tokenizer) as the default audio codec; use `--codec` to override it.
+
+| Entry point | Default model |
+| --- | --- |
+| `infer_clone.py` / Web demo | `ASLP-lab/M5-TTS-50M-VoiceClone` |
+| `infer_speaker.py` | `ASLP-lab/M5-TTS-50M-CustomVoice` |
+| `infer_onnx.py` | `ASLP-lab/M5-TTS-50M-ONNX` |
+
+Voice cloning and preset-speaker synthesis use different checkpoints. Selecting `speaker_id=1` on a loaded model does not switch its weights.
 
 ### Installation
 
@@ -158,8 +166,14 @@ audio = model.infer(
     lang="Chinese",
 )
 model.save("outputs/clone_python.wav", audio)
+```
 
-# Reuse the model for a preset speaker.
+For preset-speaker synthesis, load the dedicated CustomVoice checkpoint:
+
+```python
+from inference import M5TTS
+
+model = M5TTS.from_pretrained("ASLP-lab/M5-TTS-50M-CustomVoice", device="cuda")
 audio = model.infer("你好，今天的天气很好。", speaker_id=1)
 model.save("outputs/speaker_python.wav", audio)
 ```
@@ -176,7 +190,7 @@ Open **http://localhost:7860**, provide reference audio and its transcript, ente
 
 ### ONNX Inference
 
-`infer_onnx.py` supports CPU and NVIDIA GPU inference using the same ONNX model. It downloads `ASLP-lab/M5-TTS-50M-VoiceClone-ONNX` by default.
+`infer_onnx.py` supports CPU and NVIDIA GPU inference using the same ONNX model. It downloads `ASLP-lab/M5-TTS-50M-ONNX` by default.
 
 #### CPU
 
@@ -221,7 +235,7 @@ To reuse an existing compatible codec when exporting another M5 checkpoint:
 ```bash
 python onnx/export.py \
   --model ASLP-lab/M5-TTS-50M-VoiceClone \
-  --reuse-codec ASLP-lab/M5-TTS-50M-VoiceClone-ONNX \
+  --reuse-codec ASLP-lab/M5-TTS-50M-ONNX \
   --output outputs/onnx_reexport
 ```
 
@@ -422,6 +436,10 @@ Planned directions include **8-codebook inference**, **48 kHz output**, better c
 </table>
 
 ### Data Acknowledgments
+
+<p align="left">
+  <img src="assets/logos/originbeat.png" alt="Originbeat Inc." width="280">
+</p>
 
 Our preset-speaker models use data from the [Multi-Speaker Multi-Style Voice Cloning Challenge 2021 (M2VoC)](https://arxiv.org/abs/2104.01818). We thank **Fen Hong (Originbeat Inc.)** for support related to these data.
 

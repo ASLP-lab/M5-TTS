@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="m5-tts-logo.png" alt="M5-TTS 蜂鸟标志" width="440">
+  <img src="assets/logos/m5-tts-logo.png" alt="M5-TTS 蜂鸟标志" width="440">
 </p>
 
 <h1 align="center">M5-TTS</h1>
@@ -98,7 +98,15 @@
 
 ## 快速开始
 
-模型权重自动从 Hugging Face 下载。使用 `--model <仓库ID或本地目录>` 可选择其他模型。
+模型权重自动从 Hugging Face 下载。使用 `--model <仓库ID或本地目录>` 可选择其他模型。PyTorch 推理和 ONNX 导出默认使用 [ASLP-lab/M5-TTS-Audio-Tokenizer](https://huggingface.co/ASLP-lab/M5-TTS-Audio-Tokenizer) 作为音频 codec，可通过 `--codec` 指定其他仓库或本地目录。
+
+| 推理入口 | 默认模型 |
+| --- | --- |
+| `infer_clone.py` / 网页 Demo | `ASLP-lab/M5-TTS-50M-VoiceClone` |
+| `infer_speaker.py` | `ASLP-lab/M5-TTS-50M-CustomVoice` |
+| `infer_onnx.py` | `ASLP-lab/M5-TTS-50M-ONNX` |
+
+音色克隆和精品说话人使用不同 checkpoint。在已加载的模型上设置 `speaker_id=1`，不会自动切换权重。
 
 ### 安装
 
@@ -158,8 +166,14 @@ audio = model.infer(
     lang="Chinese",
 )
 model.save("outputs/clone_python.wav", audio)
+```
 
-# Reuse the model for a preset speaker.
+精品说话人播报应单独加载 CustomVoice 权重：
+
+```python
+from inference import M5TTS
+
+model = M5TTS.from_pretrained("ASLP-lab/M5-TTS-50M-CustomVoice", device="cuda")
 audio = model.infer("你好，今天的天气很好。", speaker_id=1)
 model.save("outputs/speaker_python.wav", audio)
 ```
@@ -176,7 +190,7 @@ python app.py
 
 ### ONNX 推理
 
-`infer_onnx.py` 支持同一份 ONNX 模型在 CPU 和 NVIDIA GPU 上运行，默认下载 `ASLP-lab/M5-TTS-50M-VoiceClone-ONNX`。
+`infer_onnx.py` 支持同一份 ONNX 模型在 CPU 和 NVIDIA GPU 上运行，默认下载 `ASLP-lab/M5-TTS-50M-ONNX`。
 
 #### CPU
 
@@ -221,7 +235,7 @@ python onnx/export.py \
 ```bash
 python onnx/export.py \
   --model ASLP-lab/M5-TTS-50M-VoiceClone \
-  --reuse-codec ASLP-lab/M5-TTS-50M-VoiceClone-ONNX \
+  --reuse-codec ASLP-lab/M5-TTS-50M-ONNX \
   --output outputs/onnx_reexport
 ```
 
@@ -422,6 +436,10 @@ RTF 为合成耗时与生成音频时长之比；**RTF < 1** 表示生成速度�
 </table>
 
 ### 数据致谢
+
+<p align="left">
+  <img src="assets/logos/originbeat.png" alt="Originbeat Inc." width="280">
+</p>
 
 精品说话人模型使用了 [2021 多说话人多风格语音克隆挑战赛（M2VoC）](https://arxiv.org/abs/2104.01818)中的数据。感谢 **Fen Hong（Originbeat Inc.）** 对相关数据工作的支持。
 
