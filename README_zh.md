@@ -22,6 +22,7 @@
 </p>
 
 ## 概述
+https://github.com/user-attachments/assets/9fa7b835-a084-4cf6-9074-c45cb28f9b9e
 
 **M5-TTS** 是基于语言模型的轻量语音生成系统，支持多语种、中文方言、零样本音色克隆，以及精品说话人的单人多语合成。其 **50M LM 参数量不含语音 codec**，由时间维度 backbone 和局部多 Token 预测（MTP）模块组成。
 
