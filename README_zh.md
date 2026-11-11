@@ -423,24 +423,30 @@ RTF 为合成耗时与生成音频时长之比；**RTF < 1** 表示生成速度�
 
 <table>
   <tr>
-    <td align="left" valign="middle" width="320">
-      <a href="https://www.nwpu.edu.cn/"><img src="assets/logos/npu.png" alt="西北工业大学" width="280"></a>
+    <td align="left" valign="middle" width="240" height="140">
+      <a href="https://www.nwpu.edu.cn/"><img src="assets/logos/npu.png" alt="西北工业大学" width="220"></a>
     </td>
-    <td align="left" valign="middle" width="320">
-      <img src="assets/logos/pimei.jpg" alt="媲美科技 · LycheeAI Lab" width="160">
+    <td align="left" valign="middle" width="240" height="140">
+      <img src="assets/logos/pimei.jpg" alt="媲美科技 · LycheeAI Lab" width="120">
+    </td>
+    <td align="left" valign="middle" width="240" height="140">
+      <img src="assets/logos/moonstep.jpg" alt="Moonstep AI" width="120">
     </td>
   </tr>
   <tr>
-    <td align="left"><strong>西北工业大学</strong></td>
-    <td align="left"><strong>媲美科技 · LycheeAI Lab</strong></td>
+    <td align="left" valign="middle" width="240" height="140">
+      <img src="assets/logos/wenet.png" alt="WeNet 开源社区" width="120">
+    </td>
+    <td align="left" valign="middle" width="240" height="140">
+      <img src="assets/logos/nju.png" alt="南京大学" width="180">
+    </td>
+    <td align="left" valign="middle" width="240" height="140">
+      <img src="assets/logos/originbeat.png" alt="Originbeat Inc." width="220">
+    </td>
   </tr>
 </table>
 
 ### 数据致谢
-
-<p align="left">
-  <img src="assets/logos/originbeat.png" alt="Originbeat Inc." width="280">
-</p>
 
 精品说话人模型使用了 [2021 多说话人多风格语音克隆挑战赛（M2VoC）](https://arxiv.org/abs/2104.01818)中的数据。感谢 **Fen Hong（Originbeat Inc.）** 对相关数据工作的支持。
 
@@ -470,4 +476,10 @@ RTF 为合成耗时与生成音频时长之比；**RTF < 1** 表示生成速度�
 
 <p align="left">
   <a href="http://www.npu-aslp.org/english"><img src="assets/logos/aslp.jpeg" alt="ASLP@NPU 音频、语音与语言处理实验室" width="500"></a>
+</p>
+
+欢迎加入 M5-TTS 微信交流群，交流使用问题与项目动态。扫描下方二维码，或点击图片查看原图。如二维码已过期，请通过邮箱联系我们获取新的邀请。
+
+<p align="left">
+  <a href="assets/wechat-group.jpg"><img src="assets/wechat-group.jpg" alt="M5-TTS 微信交流群二维码" width="320"></a>
 </p>

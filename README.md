@@ -423,24 +423,30 @@ Planned directions include **8-codebook inference**, **48 kHz output**, better c
 
 <table>
   <tr>
-    <td align="left" valign="middle" width="320">
-      <a href="https://www.nwpu.edu.cn/"><img src="assets/logos/npu.png" alt="Northwestern Polytechnical University" width="280"></a>
+    <td align="left" valign="middle" width="240" height="140">
+      <a href="https://www.nwpu.edu.cn/"><img src="assets/logos/npu.png" alt="Northwestern Polytechnical University" width="220"></a>
     </td>
-    <td align="left" valign="middle" width="320">
-      <img src="assets/logos/pimei.jpg" alt="LycheeAI Lab" width="160">
+    <td align="left" valign="middle" width="240" height="140">
+      <img src="assets/logos/pimei.jpg" alt="LycheeAI Lab" width="120">
+    </td>
+    <td align="left" valign="middle" width="240" height="140">
+      <img src="assets/logos/moonstep.jpg" alt="Moonstep AI" width="120">
     </td>
   </tr>
   <tr>
-    <td align="left"><strong>Northwestern Polytechnical University</strong></td>
-    <td align="left"><strong>LycheeAI Lab</strong></td>
+    <td align="left" valign="middle" width="240" height="140">
+      <img src="assets/logos/wenet.png" alt="WeNet Open Source Community" width="120">
+    </td>
+    <td align="left" valign="middle" width="240" height="140">
+      <img src="assets/logos/nju.png" alt="Nanjing University" width="180">
+    </td>
+    <td align="left" valign="middle" width="240" height="140">
+      <img src="assets/logos/originbeat.png" alt="Originbeat Inc." width="220">
+    </td>
   </tr>
 </table>
 
 ### Data Acknowledgments
-
-<p align="left">
-  <img src="assets/logos/originbeat.png" alt="Originbeat Inc." width="280">
-</p>
 
 Our preset-speaker models use data from the [Multi-Speaker Multi-Style Voice Cloning Challenge 2021 (M2VoC)](https://arxiv.org/abs/2104.01818). We thank **Fen Hong (Originbeat Inc.)** for support related to these data.
 
@@ -470,4 +476,10 @@ For questions and feedback, please contact **Wenhao Li** at [wenhao.li@mail.nwpu
 
 <p align="left">
   <a href="http://www.npu-aslp.org/english"><img src="assets/logos/aslp.jpeg" alt="ASLP@NPU — Audio, Speech and Language Processing Lab" width="500"></a>
+</p>
+
+Join the M5-TTS WeChat group for discussion and updates. Scan the QR code below, or click it to open the full-size image. If the code has expired, contact us by email for a new invitation.
+
+<p align="left">
+  <a href="assets/wechat-group.jpg"><img src="assets/wechat-group.jpg" alt="QR code for the M5-TTS WeChat discussion group" width="320"></a>
 </p>
