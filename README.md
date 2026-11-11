@@ -14,7 +14,7 @@
 
 <p align="center">
   English | <a href="README_zh.md">简体中文</a><br>
-  <a href="https://aslp-lab.github.io/M5-TTS-Demo-Page/m5-tts-v3.pdf">Technical Report</a> ·
+  <a href="https://arxiv.org/abs/2611.10162">Technical Report</a> ·
   <a href="https://aslp-lab.github.io/M5-TTS-Demo-Page/">Audio Demos</a> ·
   <a href="https://huggingface.co/spaces/ASLP-lab/M5-TTS-Space">Try Online</a> ·
   <a href="https://huggingface.co/collections/ASLP-lab/m5-tts">Model Collection</a> ·
