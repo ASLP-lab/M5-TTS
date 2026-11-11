@@ -1,0 +1,56 @@
+# Local editor data and Python caches
+.codebuddy/
+.idea/
+.vscode/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local environments and generated output
+.venv/
+venv/
+.env/
+/.clean-install-check/
+/.deps-incremental-*/
+/outputs/
+/build/
+/dist/
+*.egg-info/
+
+# Weights and reference materials are published separately
+/hf_model/
+/customVoice_ckpt/
+/onnx_model/
+/checkpoints/
+/m5_onnx_android/
+*.safetensors
+*.onnx
+*.pt
+*.pth
+*.ckpt
+*.m5model
+
+# Unconfirmed branding assets
+/assets/logos/*-candidate.*
+
+# Secrets and machine-specific settings
+.env
+.env.*
+*.pem
+*.key
+*.jks
+*.keystore
+local.properties
+
+# Android build output (keep Gradle wrapper source assets)
+.gradle/
+.cxx/
+**/build/
+*.apk
+*.aab
+
+# OS metadata
+.DS_Store
+Thumbs.db

@@ -21,13 +21,15 @@
   <a href="https://huggingface.co/ASLP-lab/M5-TTS">模型仓库</a>
 </p>
 
+## 概述
+
 **M5-TTS** 是基于语言模型的轻量语音生成系统，支持多语种、中文方言、零样本音色克隆，以及精品说话人的单人多语合成。其 **50M LM 参数量不含语音 codec**，由时间维度 backbone 和局部多 Token 预测（MTP）模块组成。
 
 **LM 参数量仅为 MOSS-TTS-Nano 的一半，Seed-ZH / Seed-EN 相对错误率分别降低 62.2% / 35.3%。** M5-TTS（GRPO）达到 **1.37% CER / 2.91% WER**，Nano 对应为 **3.62% / 4.50%**。在报告所测的四核 Xeon 配置下，CPU 流式合成达到 **RTF 0.653** 和 **225 ms 预热后首包延迟**。
 
 **VoiceJudge 自然度评测：** 内部评测模型在两种 A/B 顺序下，对 M5-TTS 相比 MOSS-TTS-Nano 的偏好率分别为 **84.89% 和 86.50%**。
 
-## ✨ 核心特性
+### 核心特性
 
 |  | 特性 | M5-TTS 能力 |
 | :--- | :--- | :--- |
@@ -41,7 +43,7 @@
 - **CPU 流式推理**：结合计算图优化、缓存复用、有状态 codec 解码和自适应分块调度。
 - **全局 + 局部后训练反馈**：相似度和停顿奖励分别组内归一化后加权，再结合由字符编辑错误产生的 CER 引导的局部过程反馈。
 
-## 🎧 在线体验
+### 在线体验
 
 在[在线 Space](https://huggingface.co/spaces/ASLP-lab/M5-TTS-Space)体验参考语音驱动的音色克隆，在[音频演示页](https://aslp-lab.github.io/M5-TTS-Demo-Page/)试听多语种和方言对比样例。
 
@@ -55,9 +57,185 @@
 
 **开放范围：** 推理代码、语音克隆模型权重及精品说话人模型权重；**不开放预训练、CPT 和 GRPO 训练代码**。VoiceJudge 的模型权重与推理代码也计划开放，具体文件以本仓库和模型仓库的发布内容为准。
 
-## 📊 实验结果
+## 目录
 
-以下表格保留 **Seed、MiniMax 和方言评测的全部模型配置与结果**，并补充最新的 VoiceJudge 评测和 CPU 性能实测。CER、WER、MER 单位为百分比，越低越好；SIM 为说话人相似度，越高越好。**加粗指标**表示该列所列结果中的最优值，方言结果按方言分别比较；`—` 表示未报告的测量，不表示模型不支持该能力。
+- [概述](#概述)
+  - [核心特性](#核心特性)
+  - [在线体验](#在线体验)
+- [支持的语言](#支持的语言)
+- [快速开始](#快速开始)
+  - [安装](#安装)
+  - [音色克隆](#音色克隆)
+  - [精品说话人播报](#精品说话人播报)
+  - [Python API](#python-api)
+  - [网页 Demo](#网页-demo)
+  - [ONNX 推理](#onnx-推理)
+    - [CPU](#cpu)
+    - [NVIDIA GPU](#nvidia-gpu)
+  - [导出 ONNX](#导出-onnx)
+  - [Android ONNX Runtime 示例](#android-onnx-runtime-示例)
+- [评测](#评测)
+- [方法概述](#方法概述)
+- [当前限制与后续方向](#当前限制与后续方向)
+- [贡献者](#贡献者)
+  - [数据致谢](#数据致谢)
+- [许可证](#许可证)
+- [引用](#引用)
+- [联系我们](#联系我们)
+
+## 支持的语言
+
+| 语言 | `--lang` / Python `lang` |
+| --- | --- |
+| 中文 | `Chinese` |
+| 英语 | `English` |
+| 德语 | `German` |
+| 法语 | `French` |
+| 日语 | `Japanese` |
+| 韩语 | `Korean` |
+
+粤语使用 `--lang Chinese --accent yue`；四川话使用 `--lang Chinese --accent chuan`。输出为 24 kHz 单声道音频。
+
+## 快速开始
+
+模型权重自动从 Hugging Face 下载。使用 `--model <仓库ID或本地目录>` 可选择其他模型。
+
+### 安装
+
+推荐使用 Python 3.10 和 Linux x86_64。在仓库根目录执行：
+
+```bash
+conda create -n m5tts python=3.10 -y
+conda activate m5tts
+pip install -r requirements.txt
+```
+
+使用 PyTorch 推理时，在安装 PyTorch 后补充安装 FlashAttention：
+
+```bash
+pip install --no-build-isolation flash-attn==2.7.3
+```
+
+PyTorch 推理采用 NVIDIA GPU 上的 FlashAttention 2 和 BF16。从源码编译 FlashAttention 需要兼容的 CUDA Toolkit 和 C++ 编译器。ONNX CPU 推理不需要 FlashAttention 或 GPU。
+
+### 音色克隆
+
+提供目标文本、参考音频及其准确转写：
+
+```bash
+python infer_clone.py \
+  --text "你好，欢迎使用我们的语音合成模型。" \
+  --prompt-wav assets/aslp_default_voice.wav \
+  --prompt-text "猪携带该疾病，然后通过蚊子传染给人类。" \
+  --output outputs/clone.wav
+```
+
+使用自己的音色时，同时替换参考音频和转写。仅使用本人或已获授权的录音。
+
+### 精品说话人播报
+
+不提供参考音频，直接指定说话人 ID：
+
+```bash
+python infer_speaker.py \
+  --text "你好，今天的天气很好，适合出去散散步。" \
+  --speaker-id 1 \
+  --output outputs/speaker.wav
+```
+
+说话人 ID 必须是所选权重实际支持的 ID。
+
+### Python API
+
+```python
+from inference import M5TTS
+
+model = M5TTS.from_pretrained(device="cuda")
+audio = model.infer(
+    "你好，欢迎使用我们的语音合成模型。",
+    prompt_wav="assets/aslp_default_voice.wav",
+    prompt_text="猪携带该疾病，然后通过蚊子传染给人类。",
+    lang="Chinese",
+)
+model.save("outputs/clone_python.wav", audio)
+
+# Reuse the model for a preset speaker.
+audio = model.infer("你好，今天的天气很好。", speaker_id=1)
+model.save("outputs/speaker_python.wav", audio)
+```
+
+### 网页 Demo
+
+体验在线 [M5-TTS-Space](https://huggingface.co/spaces/ASLP-lab/M5-TTS-Space)，或本地启动：
+
+```bash
+python app.py
+```
+
+浏览器打开 **http://localhost:7860**，提供参考音频和转写，输入目标文本后点击 **Generate**。服务端及模型参数见 `python app.py --help`。
+
+### ONNX 推理
+
+`infer_onnx.py` 支持同一份 ONNX 模型在 CPU 和 NVIDIA GPU 上运行，默认下载 `ASLP-lab/M5-TTS-50M-VoiceClone-ONNX`。
+
+#### CPU
+
+```bash
+python infer_onnx.py \
+  --device cpu --threads 4 \
+  --text "你好，欢迎使用我们的语音合成模型。" \
+  --prompt-wav assets/aslp_default_voice.wav \
+  --prompt-text "猪携带该疾病，然后通过蚊子传染给人类。" \
+  --output outputs/onnx_cpu.wav
+```
+
+#### NVIDIA GPU
+
+```bash
+python infer_onnx.py \
+  --device cuda --device-id 0 \
+  --text "你好，欢迎使用我们的语音合成模型。" \
+  --prompt-wav assets/aslp_default_voice.wav \
+  --prompt-text "猪携带该疾病，然后通过蚊子传染给人类。" \
+  --output outputs/onnx_gpu.wav
+```
+
+依赖文件安装的 `onnxruntime-gpu` 同时支持 CPU，并由 PyTorch 提供兼容的 CUDA 12/cuDNN 9 运行库。GPU 推理仍需兼容的 NVIDIA 驱动。同一环境不要再安装 `onnxruntime`。
+
+添加 `--stream` 可将生成音频分块写入文件。脚本保存 WAV 及同名 JSON 统计文件，不覆盖已有输出。ONNX 当前提供参考音频克隆，精品说话人 ID 请使用 PyTorch API。CPU/GPU 的数值结果和速度可能不同。
+
+### 导出 ONNX
+
+从 Hugging Face 加载 M5 checkpoint 并导出：
+
+```bash
+python onnx/export.py \
+  --model ASLP-lab/M5-TTS-50M-VoiceClone \
+  --output outputs/onnx_export
+```
+
+导出器自动下载配套 codec，生成完整的 FP32 ONNX 模型包。`--model` 也可指定包含权重、配置、条件元数据及配套文本 tokenizer 的本地目录。输出目录必须不存在。
+
+更新 M5 权重时，也可以复用已有的兼容 codec：
+
+```bash
+python onnx/export.py \
+  --model ASLP-lab/M5-TTS-50M-VoiceClone \
+  --reuse-codec ASLP-lab/M5-TTS-50M-VoiceClone-ONNX \
+  --output outputs/onnx_reexport
+```
+
+将导出目录作为 `infer_onnx.py` 的 `--model` 即可推理。缓存、版本和离线选项见 `python onnx/export.py --help`。
+
+### Android ONNX Runtime 示例
+
+原生 Android 示例位于 [`android/`](android/README.md)，支持 Android 9+ arm64 设备上的离线 ONNX 推理。构建 App 后，将兼容的 ONNX 模型打包为 `.m5model`，再导入 App。
+
+JDK、Android SDK、APK 构建和模型打包方法见 [Android 指南](android/README.md)。
+
+## 评测
+
+以下表格保留 **Seed、MiniMax 和方言评测的全部模型配置与结果**，并补充最新的 VoiceJudge 评测和 CPU 性能实测。CER、WER、MER 单位为百分比，越低越好；SIM 为说话人相似度，越高越好。**加粗指标**表示该列所列结果中的最优值，方言结果按方言分别比较。Seed 和 MiniMax 表中，<ins>下划线指标</ins>表示该列次优值；并列结果使用相同标记。`—` 表示未报告的测量，不表示模型不支持该能力。
 
 **Voice Cloning（音色克隆）**与 **Custom Voice（固定音色）**使用不同的说话人条件，分别报告，固定音色结果并非相同条件下的零样本克隆对比。具有多个预置音色的系统每种语言选择一个音色；未加脚注的 Custom Voice 配置使用单个固定音色。
 
@@ -68,10 +246,10 @@
 沿用官方评测脚本：中文转写使用 Paraformer-zh，英文转写使用 OpenAI Whisper-large-v3；SIM 为经过说话人验证微调的 WavLM-large 提取的 embedding 余弦相似度。
 
 | 模型 | 主模型参数量（M） | 设置 | Seed-ZH CER (%) ↓ | Seed-ZH SIM ↑ | Seed-EN WER (%) ↓ | Seed-EN SIM ↑ | Seed-Hard CER (%) ↓ | Seed-Hard SIM ↑ |
-| :--- | :---: | :--- | ---: | ---: | ---: | ---: | ---: | ---: |
-| **M5-TTS (CPT)** | 50 | Voice Cloning | 1.70 | 0.64 | 3.60 | 0.53 | 20.92 | 0.57 |
-| **M5-TTS (GRPO)** | 50 | Voice Cloning | 1.37 | 0.65 | 2.91 | 0.53 | 17.48 | 0.59 |
-| **M5-TTS** | 50 | Custom Voice | 1.26 | — | 1.88 | — | 18.19 | — |
+| :--- | ---: | :--- | ---: | ---: | ---: | ---: | ---: | ---: |
+| **M5-TTS (CPT)** | 50 | Voice Cloning | 1.70 | 0.64 | 3.60 | <ins>0.53</ins> | 20.92 | 0.57 |
+| **M5-TTS (GRPO)** | 50 | Voice Cloning | 1.37 | <ins>0.65</ins> | 2.91 | <ins>0.53</ins> | 17.48 | <ins>0.59</ins> |
+| **M5-TTS** | 50 | Custom Voice | <ins>1.26</ins> | — | <ins>1.88</ins> | — | 18.19 | — |
 | Audio8-TTS Preview | 170 | Voice Cloning | **1.21** | **0.68** | 1.96 | **0.57** | 19.63 | **0.63** |
 | MOSS-TTS-Nano | 100 | Voice Cloning | 3.62 | 0.64 | 4.50 | 0.50 | 15.77 | **0.63** |
 | Pocket TTS | 100 | Voice Cloning | — | — | **1.86** | 0.47 | — | — |
@@ -79,7 +257,7 @@
 | Pocket TTS | 100 | Custom Voice<sup>a</sup> | — | — | 1.90 | — | — | — |
 | Kokoro-TTS | 82 | Custom Voice<sup>b</sup> | 1.40 | — | 2.04 | — | **6.33** | — |
 | Hojo-TTS-Light | 40 | Custom Voice<sup>c</sup> | 1.78 | — | 2.97 | — | 22.70 | — |
-| Sano TTS | 2.27 | Custom Voice<sup>d</sup> | 2.42 | — | 2.40 | — | 7.08 | — |
+| Sano TTS | 2.27 | Custom Voice<sup>d</sup> | 2.42 | — | 2.40 | — | <ins>7.08</ins> | — |
 | Tiny TTS | 1.6 | Custom Voice | — | — | 3.30 | — | — | — |
 
 参数量单位统一为**百万（M）**，不包含语音 codec。Audio8-TTS Preview 使用 [Preview-0.1B checkpoint](https://huggingface.co/Edge0/Audio8-TTS-Preview-0.1b)，报告中的主模型参数量为 170M。
@@ -104,23 +282,23 @@ MiniMax 的中文转写使用本地 [SeACo-Paraformer](https://arxiv.org/abs/230
 | 模型 | 设置 | ZH CER | EN WER | DE WER | FR WER | JA CER | KO CER |
 | :--- | :--- | ---: | ---: | ---: | ---: | ---: | ---: |
 | **M5-TTS (CPT)** | Voice Cloning | 2.54 | 3.67 | 4.60 | 8.15 | 12.71 | 3.10 |
-| **M5-TTS (GRPO)** | Voice Cloning | 2.05 | 3.06 | 3.81 | 8.14 | 9.70 | 2.88 |
-| **M5-TTS** | Custom Voice | 1.16 | 2.24 | **0.70** | 5.33 | 10.27 | **2.09** |
+| **M5-TTS (GRPO)** | Voice Cloning | 2.05 | 3.06 | 3.81 | 8.14 | <ins>9.70</ins> | <ins>2.88</ins> |
+| **M5-TTS** | Custom Voice | <ins>1.16</ins> | 2.24 | **0.70** | <ins>5.33</ins> | 10.27 | **2.09** |
 | MOSS-TTS-Nano | Voice Cloning | 1.80 | 5.34 | 11.18 | 18.64 | 40.22 | 8.21 |
 | Pocket TTS | Voice Cloning | — | 2.41 | 3.50 | 6.71 | — | — |
-| Pocket TTS | Custom Voice<sup>a</sup> | — | 1.99 | 4.14 | 7.88 | — | — |
-| Sano TTS | Custom Voice<sup>b</sup> | 1.41 | **1.85** | 3.18 | 8.91 | — | — |
+| Pocket TTS | Custom Voice<sup>a</sup> | — | <ins>1.99</ins> | 4.14 | 7.88 | — | — |
+| Sano TTS | Custom Voice<sup>b</sup> | 1.41 | **1.85** | <ins>3.18</ins> | 8.91 | — | — |
 | Kokoro-TTS | Custom Voice<sup>c</sup> | **1.03** | 2.58 | — | **4.79** | **3.72** | — |
 
 #### 说话人相似度 — SIM ↑
 
 | 模型 | 设置 | ZH | EN | DE | FR | JA | KO |
 | :--- | :--- | ---: | ---: | ---: | ---: | ---: | ---: |
-| **M5-TTS (CPT)** | Voice Cloning | 0.70 | 0.62 | **0.63** | 0.51 | **0.72** | 0.66 |
-| **M5-TTS (GRPO)** | Voice Cloning | 0.71 | 0.63 | **0.63** | **0.53** | **0.72** | 0.66 |
+| **M5-TTS (CPT)** | Voice Cloning | 0.70 | 0.62 | **0.63** | <ins>0.51</ins> | **0.72** | <ins>0.66</ins> |
+| **M5-TTS (GRPO)** | Voice Cloning | <ins>0.71</ins> | <ins>0.63</ins> | **0.63** | **0.53** | **0.72** | <ins>0.66</ins> |
 | **M5-TTS** | Custom Voice | — | — | — | — | — | — |
-| MOSS-TTS-Nano | Voice Cloning | **0.73** | **0.65** | 0.54 | 0.51 | 0.70 | **0.67** |
-| Pocket TTS | Voice Cloning | — | 0.61 | 0.54 | **0.53** | — | — |
+| MOSS-TTS-Nano | Voice Cloning | **0.73** | **0.65** | <ins>0.54</ins> | <ins>0.51</ins> | <ins>0.70</ins> | **0.67** |
+| Pocket TTS | Voice Cloning | — | 0.61 | <ins>0.54</ins> | **0.53** | — | — |
 | Pocket TTS | Custom Voice<sup>a</sup> | — | — | — | — | — | — |
 | Sano TTS | Custom Voice<sup>b</sup> | — | — | — | — | — | — |
 | Kokoro-TTS | Custom Voice<sup>c</sup> | — | — | — | — | — | — |
@@ -186,16 +364,16 @@ M5-TTS 在粤语两个子集上的 MER 均为所列系统中最低，四川话 H
 ### CPU 流式性能
 
 | 模型 | 硬件 | CPU 核心数 | RTF ↓ | 预热后首包延迟 ↓ |
-| :--- | :--- | :---: | ---: | ---: |
+| :--- | :--- | ---: | ---: | ---: |
 | **M5-TTS** | Intel Xeon Gold 6530 | 4 | 0.653 | 225 ms |
 
 RTF 为合成耗时与生成音频时长之比；**RTF < 1** 表示生成速度快于实时播放。计时不含模型加载与预热。报告仅给出 M5-TTS 的此项 CPU 实测，未提供基线运行时对比；该结果不能直接代表手机或 ARM 平台表现。
 
-## 🧩 方法概述
+## 方法概述
 
 ### 分层语音生成
 
-<p align="center">
+<p align="left">
   <img src="assets/architecture.png" alt="M5-TTS backbone 与 MTP 分层架构" width="900">
 </p>
 
@@ -212,8 +390,8 @@ RTF 为合成耗时与生成音频时长之比；**RTF < 1** 表示生成速度�
 
 预训练条件顺序为 `accent → language → text`，精品说话人微调时加入 speaker：`accent → speaker → language → text`。
 
-<p align="center">
-  <img src="assets/grpo.png" alt="GRPO：SIM 和停顿奖励分别组内归一化后加权，再结合从字符投影到 codec 帧的 CER 引导的局部过程反馈" width="1000">
+<p align="left">
+  <img src="assets/grpo.png" alt="GRPO：SIM 和停顿奖励分别组内归一化后加权，再结合从字符投影到 codec 帧的 CER 引导的局部过程反馈" width="900">
 </p>
 
 ### 高效推理
@@ -226,9 +404,32 @@ RTF 为合成耗时与生成音频时长之比；**RTF < 1** 表示生成速度�
 
 后续计划探索 **8 码本推理**、**48 kHz 输出**，改进困难样本筛选与数据配比，并支持对**情感、说话风格、笑声和叹息等副语言表达**的显式控制。
 
+## 贡献者
+
+<table>
+  <tr>
+    <td align="left" valign="middle" width="320">
+      <a href="https://www.nwpu.edu.cn/"><img src="assets/logos/npu.png" alt="西北工业大学" width="280"></a>
+    </td>
+    <td align="left" valign="middle" width="320">
+      <img src="assets/logos/pimei.jpg" alt="媲美科技 · LycheeAI Lab" width="160">
+    </td>
+  </tr>
+  <tr>
+    <td align="left"><strong>西北工业大学</strong></td>
+    <td align="left"><strong>媲美科技 · LycheeAI Lab</strong></td>
+  </tr>
+</table>
+
+### 数据致谢
+
+精品说话人模型使用了 [2021 多说话人多风格语音克隆挑战赛（M2VoC）](https://arxiv.org/abs/2104.01818)中的数据。感谢 **Fen Hong（Originbeat Inc.）** 对相关数据工作的支持。
+
 ## 许可证
 
 代码与模型权重的许可范围以各发布文件、模型仓库和 Space 随附的许可证为准。
+
+仓库内的 Qwen 12Hz codec 实现采用 Apache-2.0 许可证，见[第三方声明](m5/codec_qwen12hz/NOTICE)。
 
 ## 引用
 
@@ -243,3 +444,11 @@ RTF 为合成耗时与生成音频时长之比；**RTF < 1** 表示生成速度�
   url = {https://aslp-lab.github.io/M5-TTS-Demo-Page/m5-tts-v3.pdf}
 }
 ```
+
+## 联系我们
+
+如有问题或反馈，欢迎通过邮箱 [wenhao.li@mail.nwpu.edu.cn](mailto:wenhao.li@mail.nwpu.edu.cn) 联系 **Wenhao Li**。也可通过本仓库的 [Issues](https://github.com/ASLP-lab/M5-TTS/issues) 交流，或访问 [ASLP@NPU 实验室官网](http://www.npu-aslp.org/english)。
+
+<p align="left">
+  <a href="http://www.npu-aslp.org/english"><img src="assets/logos/aslp.jpeg" alt="ASLP@NPU 音频、语音与语言处理实验室" width="500"></a>
+</p>

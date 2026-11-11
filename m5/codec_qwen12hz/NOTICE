@@ -1,0 +1,17 @@
+Qwen3-TTS 12Hz codec
+Copyright 2026 The Qwen team, Alibaba Group and the HuggingFace Inc. team.
+
+Source: qwen-tts 0.1.1, https://github.com/QwenLM/Qwen3-TTS
+License: Apache License 2.0 (see LICENSE).
+Source distribution and file hashes are recorded in provenance.json.
+
+M5 changes:
+- Only the 12Hz codec model/configuration are included. No Qwen language model,
+  25Hz codec, Gradio application or qwen-tts package metadata is included.
+- modeling_qwen3_tts_tokenizer_v2.py adapts the check_model_inputs decorator
+  for the project's fixed Transformers 4.57.6 version. Tensor operations and
+  codec architecture are unchanged.
+- __init__.py is an M5 adapter for local files/NumPy waveforms and code tensors;
+  it preserves the upstream encode/decode processing used by M5 inference.
+
+Codec weights are downloaded separately and retain their upstream license.

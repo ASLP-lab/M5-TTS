@@ -1,0 +1,393 @@
+{
+  "version": "m5-tn-1",
+  "units": {
+    "kg": {
+      "zh": "千克",
+      "en": "kilograms",
+      "en_one": "kilogram"
+    },
+    "g": {
+      "zh": "克",
+      "en": "grams",
+      "en_one": "gram"
+    },
+    "mg": {
+      "zh": "毫克",
+      "en": "milligrams",
+      "en_one": "milligram"
+    },
+    "μg": {
+      "zh": "微克",
+      "en": "micrograms",
+      "en_one": "microgram"
+    },
+    "ug": {
+      "zh": "微克",
+      "en": "micrograms",
+      "en_one": "microgram"
+    },
+    "km/h": {
+      "zh": "千米每小时",
+      "en": "kilometers per hour",
+      "en_one": "kilometer per hour"
+    },
+    "m/s": {
+      "zh": "米每秒",
+      "en": "meters per second",
+      "en_one": "meter per second"
+    },
+    "km": {
+      "zh": "千米",
+      "en": "kilometers",
+      "en_one": "kilometer"
+    },
+    "cm": {
+      "zh": "厘米",
+      "en": "centimeters",
+      "en_one": "centimeter"
+    },
+    "mm": {
+      "zh": "毫米",
+      "en": "millimeters",
+      "en_one": "millimeter"
+    },
+    "m": {
+      "zh": "米",
+      "en": "meters",
+      "en_one": "meter"
+    },
+    "m²": {
+      "zh": "平方米",
+      "en": "square meters",
+      "en_one": "square meter"
+    },
+    "m2": {
+      "zh": "平方米",
+      "en": "square meters",
+      "en_one": "square meter"
+    },
+    "㎡": {
+      "zh": "平方米",
+      "en": "square meters",
+      "en_one": "square meter"
+    },
+    "m³": {
+      "zh": "立方米",
+      "en": "cubic meters",
+      "en_one": "cubic meter"
+    },
+    "m3": {
+      "zh": "立方米",
+      "en": "cubic meters",
+      "en_one": "cubic meter"
+    },
+    "mL": {
+      "zh": "毫升",
+      "en": "milliliters",
+      "en_one": "milliliter"
+    },
+    "ml": {
+      "zh": "毫升",
+      "en": "milliliters",
+      "en_one": "milliliter"
+    },
+    "L": {
+      "zh": "升",
+      "en": "liters",
+      "en_one": "liter"
+    },
+    "l": {
+      "zh": "升",
+      "en": "liters",
+      "en_one": "liter"
+    },
+    "℃": {
+      "zh": "摄氏度",
+      "en": "degrees Celsius",
+      "en_one": "degree Celsius"
+    },
+    "°C": {
+      "zh": "摄氏度",
+      "en": "degrees Celsius",
+      "en_one": "degree Celsius"
+    },
+    "℉": {
+      "zh": "华氏度",
+      "en": "degrees Fahrenheit",
+      "en_one": "degree Fahrenheit"
+    },
+    "°F": {
+      "zh": "华氏度",
+      "en": "degrees Fahrenheit",
+      "en_one": "degree Fahrenheit"
+    },
+    "GHz": {
+      "zh": "吉赫兹",
+      "en": "gigahertz",
+      "en_one": "gigahertz"
+    },
+    "MHz": {
+      "zh": "兆赫兹",
+      "en": "megahertz",
+      "en_one": "megahertz"
+    },
+    "kHz": {
+      "zh": "千赫兹",
+      "en": "kilohertz",
+      "en_one": "kilohertz"
+    },
+    "Hz": {
+      "zh": "赫兹",
+      "en": "hertz",
+      "en_one": "hertz"
+    },
+    "kW": {
+      "zh": "千瓦",
+      "en": "kilowatts",
+      "en_one": "kilowatt"
+    },
+    "mW": {
+      "zh": "毫瓦",
+      "en": "milliwatts",
+      "en_one": "milliwatt"
+    },
+    "W": {
+      "zh": "瓦",
+      "en": "watts",
+      "en_one": "watt"
+    },
+    "mV": {
+      "zh": "毫伏",
+      "en": "millivolts",
+      "en_one": "millivolt"
+    },
+    "V": {
+      "zh": "伏",
+      "en": "volts",
+      "en_one": "volt"
+    },
+    "mA": {
+      "zh": "毫安",
+      "en": "milliamps",
+      "en_one": "milliamp"
+    },
+    "A": {
+      "zh": "安",
+      "en": "amps",
+      "en_one": "amp"
+    },
+    "TB": {
+      "zh": "太字节",
+      "en": "terabytes",
+      "en_one": "terabyte"
+    },
+    "GB": {
+      "zh": "吉字节",
+      "en": "gigabytes",
+      "en_one": "gigabyte"
+    },
+    "MB": {
+      "zh": "兆字节",
+      "en": "megabytes",
+      "en_one": "megabyte"
+    },
+    "KB": {
+      "zh": "千字节",
+      "en": "kilobytes",
+      "en_one": "kilobyte"
+    },
+    "ms": {
+      "zh": "毫秒",
+      "en": "milliseconds",
+      "en_one": "millisecond"
+    },
+    "s": {
+      "zh": "秒",
+      "en": "seconds",
+      "en_one": "second"
+    },
+    "min": {
+      "zh": "分钟",
+      "en": "minutes",
+      "en_one": "minute"
+    },
+    "h": {
+      "zh": "小时",
+      "en": "hours",
+      "en_one": "hour"
+    },
+    "CNY": {
+      "zh": "元",
+      "en": "yuan",
+      "en_one": "yuan"
+    },
+    "RMB": {
+      "zh": "元",
+      "en": "yuan",
+      "en_one": "yuan"
+    },
+    "USD": {
+      "zh": "美元",
+      "en": "US dollars",
+      "en_one": "US dollar"
+    },
+    "EUR": {
+      "zh": "欧元",
+      "en": "euros",
+      "en_one": "euro"
+    },
+    "GBP": {
+      "zh": "英镑",
+      "en": "pounds",
+      "en_one": "pound"
+    },
+    "HKD": {
+      "zh": "港元",
+      "en": "Hong Kong dollars",
+      "en_one": "Hong Kong dollar"
+    },
+    "元": {
+      "zh": "元",
+      "en": "yuan",
+      "en_one": "yuan"
+    },
+    "万元": {
+      "zh": "万元",
+      "en": "ten thousand yuan",
+      "en_one": "ten thousand yuan"
+    },
+    "亿元": {
+      "zh": "亿元",
+      "en": "hundred million yuan",
+      "en_one": "hundred million yuan"
+    }
+  },
+  "rules": [
+    {
+      "name": "url",
+      "pattern": "(?:https?://|www\\.)[^\\s<>，。！？；]+",
+      "handler": "keep",
+      "ignore_case": true
+    },
+    {
+      "name": "email",
+      "pattern": "(?<![A-Za-z0-9_.+-])[A-Za-z0-9_.+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}",
+      "handler": "keep",
+      "ignore_case": false
+    },
+    {
+      "name": "date",
+      "pattern": "(?<![A-Za-z0-9_])([0-9]{4})[-/.]([0-9]{1,2})[-/.]([0-9]{1,2})(?![A-Za-z0-9_]|\\.[0-9])",
+      "handler": "date",
+      "ignore_case": false
+    },
+    {
+      "name": "date_zh",
+      "pattern": "(?<![A-Za-z0-9_])([0-9]{4})年\\s*([0-9]{1,2})月\\s*([0-9]{1,2})[日号]",
+      "handler": "date",
+      "ignore_case": false
+    },
+    {
+      "name": "year_month",
+      "pattern": "(?<![A-Za-z0-9_])([0-9]{4})年\\s*([0-9]{1,2})月",
+      "handler": "year_month",
+      "ignore_case": false
+    },
+    {
+      "name": "year",
+      "pattern": "(?<![A-Za-z0-9_])([0-9]{4})年",
+      "handler": "year",
+      "ignore_case": false
+    },
+    {
+      "name": "month_day",
+      "pattern": "(?<![A-Za-z0-9_])([0-9]{1,2})月\\s*([0-9]{1,2})[日号]",
+      "handler": "month_day",
+      "ignore_case": false
+    },
+    {
+      "name": "time",
+      "pattern": "(?<![A-Za-z0-9_])([0-9]{1,2}):([0-9]{2})(?::([0-9]{2}))?(?![A-Za-z0-9_]|\\.[0-9])",
+      "handler": "time",
+      "ignore_case": false
+    },
+    {
+      "name": "phone",
+      "pattern": "(?<![A-Za-z0-9_])(1[3-9][0-9](?:[- ]?[0-9]{4}){2}|0[0-9]{2,3}-[0-9]{7,8})(?![A-Za-z0-9_]|\\.[0-9])",
+      "handler": "phone",
+      "ignore_case": false
+    },
+    {
+      "name": "context_digits",
+      "pattern": "(身份证号码|code|快递单号|手机号码|电话号码|身份证号|邮政编码|银行卡号|OTP|PIN|序列号|房间号|手机号|校验码|订单号|门牌号|验证码|ID|口令|学号|密码|工号|帐号|房号|电话|编号|账号|邮编)(\\s*(?:[:：]|是|为)?\\s*)([0-9]+)(?![A-Za-z0-9_]|\\.[0-9])",
+      "handler": "context_digits",
+      "ignore_case": true
+    },
+    {
+      "name": "ip",
+      "pattern": "(?<![A-Za-z0-9_])([0-9]{1,3})\\.([0-9]{1,3})\\.([0-9]{1,3})\\.([0-9]{1,3})(?![A-Za-z0-9_]|\\.[0-9])",
+      "handler": "ip",
+      "ignore_case": false
+    },
+    {
+      "name": "version",
+      "pattern": "(?<![A-Za-z0-9_])(?:[vV]([0-9]+(?:\\.[0-9]+)+)|([0-9]+(?:\\.[0-9]+){2,}))(?![A-Za-z0-9_]|\\.[0-9])",
+      "handler": "version",
+      "ignore_case": false
+    },
+    {
+      "name": "range",
+      "pattern": "(?<![A-Za-z0-9_])([+-]?(?:[0-9]{1,3}(?:,[0-9]{3})+(?:\\.[0-9]+)?|[0-9]+(?:\\.[0-9]+)?|\\.[0-9]+))\\s*[-~～至到]\\s*([+-]?(?:[0-9]{1,3}(?:,[0-9]{3})+(?:\\.[0-9]+)?|[0-9]+(?:\\.[0-9]+)?|\\.[0-9]+))\\s*(km/h|CNY|EUR|GBP|GHz|HKD|MHz|RMB|USD|kHz|m/s|min|GB|Hz|KB|MB|TB|cm|kW|kg|km|m2|m3|mA|mL|mV|mW|mg|ml|mm|ms|m²|m³|ug|°C|°F|μg|万元|亿元|A|L|V|W|g|h|l|m|s|℃|℉|㎡|元|岁|个|天|年|次|人)(?![A-Za-z0-9_]|\\.[0-9])",
+      "handler": "range",
+      "ignore_case": false
+    },
+    {
+      "name": "currency",
+      "pattern": "(?<![A-Za-z0-9_])([¥￥$€£]|USD|CNY|RMB|EUR|GBP|HKD)\\s*([+-]?(?:[0-9]{1,3}(?:,[0-9]{3})+(?:\\.[0-9]+)?|[0-9]+(?:\\.[0-9]+)?|\\.[0-9]+))(?:人民币|美元|欧元|英镑|港元|元)?(?![A-Za-z0-9_]|\\.[0-9])",
+      "handler": "currency",
+      "ignore_case": false
+    },
+    {
+      "name": "percent",
+      "pattern": "(?<![A-Za-z0-9_])([+-]?(?:[0-9]{1,3}(?:,[0-9]{3})+(?:\\.[0-9]+)?|[0-9]+(?:\\.[0-9]+)?|\\.[0-9]+))\\s*([%‰])(?![A-Za-z0-9_]|\\.[0-9])",
+      "handler": "percent",
+      "ignore_case": false
+    },
+    {
+      "name": "fraction",
+      "pattern": "(?<![A-Za-z0-9_])([+-]?[0-9]+)\\s*/\\s*([0-9]+)(?![A-Za-z0-9_]|\\.[0-9])",
+      "handler": "fraction",
+      "ignore_case": false
+    },
+    {
+      "name": "measurement",
+      "pattern": "(?<![A-Za-z0-9_])([+-]?(?:[0-9]{1,3}(?:,[0-9]{3})+(?:\\.[0-9]+)?|[0-9]+(?:\\.[0-9]+)?|\\.[0-9]+))\\s*(km/h|CNY|EUR|GBP|GHz|HKD|MHz|RMB|USD|kHz|m/s|min|GB|Hz|KB|MB|TB|cm|kW|kg|km|m2|m3|mA|mL|mV|mW|mg|ml|mm|ms|m²|m³|ug|°C|°F|μg|万元|亿元|A|L|V|W|g|h|l|m|s|℃|℉|㎡|元)(?![A-Za-z0-9_]|\\.[0-9])",
+      "handler": "measurement",
+      "ignore_case": false
+    },
+    {
+      "name": "scientific",
+      "pattern": "(?<![A-Za-z0-9_])([+-]?(?:[0-9]{1,3}(?:,[0-9]{3})+(?:\\.[0-9]+)?|[0-9]+(?:\\.[0-9]+)?|\\.[0-9]+))[eE]([+-]?[0-9]+)(?![A-Za-z0-9_]|\\.[0-9])",
+      "handler": "scientific",
+      "ignore_case": false
+    },
+    {
+      "name": "identifier",
+      "pattern": "(?<![A-Za-z0-9_])(?=[A-Za-z0-9_.+/-]*[A-Za-z])(?=[A-Za-z0-9_.+/-]*[0-9])[A-Za-z0-9][A-Za-z0-9_.+/-]*(?![A-Za-z0-9_]|\\.[0-9])",
+      "handler": "keep",
+      "ignore_case": false
+    },
+    {
+      "name": "acronym",
+      "pattern": "(?<![A-Za-z0-9_])(HTTPS|HTML|HTTP|JSON|ONNX|API|APK|ASR|CPU|CSS|DNS|GPU|LLM|NLP|PDF|RAM|RTF|SDK|SQL|SSD|SSH|TCP|TTS|UDP|URL|USB|VPN|AI)(?![A-Za-z0-9_]|\\.[0-9])",
+      "handler": "acronym",
+      "ignore_case": false
+    },
+    {
+      "name": "number",
+      "pattern": "(?<![A-Za-z0-9_.])([+-]?(?:[0-9]{1,3}(?:,[0-9]{3})+(?:\\.[0-9]+)?|[0-9]+(?:\\.[0-9]+)?|\\.[0-9]+))(?![A-Za-z0-9_]|\\.[0-9])",
+      "handler": "number",
+      "ignore_case": false
+    }
+  ]
+}

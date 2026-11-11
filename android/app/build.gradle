@@ -1,0 +1,58 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'com.m5.offline'
+    compileSdk 35
+    defaultConfig {
+        applicationId 'com.m5.offline'
+        minSdk 28
+        targetSdk 35
+        versionCode 6
+        versionName '0.4.0'
+        ndk { abiFilters 'arm64-v8a' }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+    buildFeatures { buildConfig true }
+    buildTypes { release { minifyEnabled false } }
+    packaging { jniLibs { useLegacyPackaging = false } }
+}
+
+dependencies { implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.23.2' }
+
+def voiceEncoderSource = rootProject.file(
+    providers.gradleProperty('m5VoiceEncoder')
+        .orElse(providers.environmentVariable('M5_VOICE_ENCODER'))
+        .getOrElse('models/codec_encoder.onnx'))
+def voiceEncoderAsset = file('src/main/assets/voice-tools/codec_encoder.onnx')
+tasks.register('prepareVoiceEncoder') {
+    inputs.file(voiceEncoderSource)
+    outputs.file(voiceEncoderAsset)
+    doLast {
+        def digest = java.security.MessageDigest.getInstance('SHA-256')
+        voiceEncoderSource.withInputStream { stream ->
+            byte[] block = new byte[1048576]
+            int count
+            while ((count = stream.read(block)) != -1) digest.update(block, 0, count)
+        }
+        if (digest.digest().encodeHex().toString() != 'ae0364957dd52df283e88baea8ea09d1f1f34b579cd53d2806b38290ebc03b57')
+            throw new GradleException('Voice encoder SHA256 does not match this app')
+        voiceEncoderAsset.parentFile.mkdirs()
+        java.nio.file.Files.copy(voiceEncoderSource.toPath(), voiceEncoderAsset.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+    }
+}
+tasks.named('preBuild') { dependsOn 'prepareVoiceEncoder' }
+
+tasks.register('prepareTextNormalization') {
+    def source = rootProject.file('text_normalization/rules.json')
+    def destination = file('src/main/assets/tn/rules.json')
+    inputs.file(source)
+    outputs.file(destination)
+    doLast {
+        destination.parentFile.mkdirs()
+        java.nio.file.Files.copy(source.toPath(), destination.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+    }
+}
+tasks.named('preBuild') { dependsOn 'prepareTextNormalization' }

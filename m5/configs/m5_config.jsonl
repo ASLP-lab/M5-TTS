@@ -1,0 +1,7 @@
+{
+  "backbone_flavor": "llama-30M",
+  "decoder_flavor": "llama-20M",
+  "audio_vocab_size": 2051,
+  "audio_num_codebooks": 16,
+  "use_codebooks": 16
+}
