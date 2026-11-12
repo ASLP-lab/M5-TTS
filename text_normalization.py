@@ -1,12 +1,17 @@
 """Target-text normalization using WeTextProcessing"""
 from functools import lru_cache
+from importlib import import_module
 import os
 from pathlib import Path
 import re
 import threading
 
 _LOCK = threading.RLock()
-_LANGUAGES = {"zh": "zh", "chinese": "zh", "en": "en", "english": "en"}
+_LANGUAGE_PACKAGES = {
+    "zh": "chinese", "en": "english", "ja": "japanese",
+    "ko": "korean", "de": "german", "fr": "french",
+}
+_LANGUAGES = {alias: code for code, name in _LANGUAGE_PACKAGES.items() for alias in (code, name)}
 _RESERVED_TOKEN = re.compile(r"<\|[^>\n]*\|>")
 
 
@@ -25,7 +30,11 @@ def _normalizer(language, cache_dir):
             from tn.chinese.normalizer import Normalizer
             return Normalizer(cache_dir=cache_dir, remove_interjections=False, remove_erhua=False,
                               traditional_to_simple=False, remove_puncts=False, full_to_half=False)
-        from tn.english.normalizer import Normalizer
+        if language == "ja":
+            from tn.japanese.normalizer import Normalizer
+            return Normalizer(cache_dir=cache_dir, transliterate=False, remove_interjections=False,
+                              remove_puncts=False, full_to_half=False, tag_oov=False)
+        Normalizer = import_module(f"tn.{_LANGUAGE_PACKAGES[language]}.normalizer").Normalizer
         return Normalizer(cache_dir=cache_dir)
     except ImportError as error:
         raise ImportError("TN requires WeTextProcessing==1.3.0 and pynini==2.1.7. Install requirements.txt or run: pip install WeTextProcessing==1.3.0 pynini==2.1.7") from error
@@ -45,7 +54,8 @@ def normalize_text(text, *, lang="Chinese", accent=None, cache_dir=None):
 
     Chinese and Sichuan use Chinese TN, preserving punctuation and interjections.
     Cantonese uses Chinese TN followed by Hong Kong traditional conversion, not
-    Cantonese-specific verbalization. English uses WeTextProcessing's English TN.
+    Cantonese-specific verbalization. English, Japanese, Korean, German and French
+    use their respective WeTextProcessing grammars, without phoneme conversion.
     """
     if not isinstance(text, str) or not text.strip():
         raise ValueError("TN requires nonempty text")
