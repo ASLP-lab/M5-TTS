@@ -233,6 +233,8 @@ python onnx/export.py \
 
 重新导出 codec 时可加 `--optimize-codec-encoder`，加速 CPU 上的参考音频编码。它用矩阵乘法查找码本，对分数接近的帧用原距离公式重算。导出器会在写入模型包之前对照 PyTorch 编码器校验码本索引。
 
+[Android 打包](android/README.md)请用 `--reuse-codec` 复用包含原配 encoder 的模型包。优化后的 encoder 哈希与 Android 应用和打包器要求的哈希不同。
+
 更新 M5 权重时，也可以复用已有的兼容 codec：
 
 ```bash

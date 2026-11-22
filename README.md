@@ -233,6 +233,8 @@ The exporter downloads the matching codec and produces a complete FP32 ONNX bund
 
 Add `--optimize-codec-encoder` on a fresh export to speed up reference audio encoding on CPU. It uses matrix multiplication for codebook lookup and recomputes close scores with the original distance calculation. The exporter checks the resulting codes against the PyTorch encoder before writing the bundle.
 
+For [Android packaging](android/README.md), use `--reuse-codec` with a bundle containing the stock encoder required by the app and packager. The optimized encoder has a different hash.
+
 To reuse an existing compatible codec when exporting another M5 checkpoint:
 
 ```bash
