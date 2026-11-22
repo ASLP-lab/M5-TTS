@@ -231,6 +231,8 @@ python onnx/export.py \
 
 The exporter downloads the matching codec and produces a complete FP32 ONNX bundle. `--model` also accepts a local checkpoint directory containing weights, configuration, conditioning metadata, and the matching text tokenizer. The output directory must not already exist.
 
+Add `--optimize-codec-encoder` on a fresh export to speed up reference audio encoding on CPU. It uses matrix multiplication for codebook lookup and recomputes close scores with the original distance calculation. The exporter checks the resulting codes against the PyTorch encoder before writing the bundle.
+
 To reuse an existing compatible codec when exporting another M5 checkpoint:
 
 ```bash

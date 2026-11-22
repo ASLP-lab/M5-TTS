@@ -231,6 +231,8 @@ python onnx/export.py \
 
 导出器自动下载配套 codec，生成完整的 FP32 ONNX 模型包。`--model` 也可指定包含权重、配置、条件元数据及配套文本 tokenizer 的本地目录。输出目录必须不存在。
 
+重新导出 codec 时可加 `--optimize-codec-encoder`，加速 CPU 上的参考音频编码。它用矩阵乘法查找码本，对分数接近的帧用原距离公式重算。导出器会在写入模型包之前对照 PyTorch 编码器校验码本索引。
+
 更新 M5 权重时，也可以复用已有的兼容 codec：
 
 ```bash
