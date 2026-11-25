@@ -1,5 +1,7 @@
 # M5 TTS GRPO with verl
 
+English | [简体中文](README_zh.md)
+
 Single-node synchronous GRPO for M5 TTS using verl 0.9.1 and FSDP2. Each step runs 32 prompts with eight completions per prompt across eight GPUs. The rollout policy is refreshed from the learner before each step.
 
 `verl_trainer/` contains the training entry point and worker orchestration. `m5_tts/` contains the M5 model, audio rollout, and reward computation.
