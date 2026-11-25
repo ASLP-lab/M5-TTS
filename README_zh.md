@@ -56,7 +56,7 @@ https://github.com/user-attachments/assets/9fa7b835-a084-4cf6-9074-c45cb28f9b9e
 | 模型合集 | [ASLP-lab / M5-TTS collection](https://huggingface.co/collections/ASLP-lab/m5-tts) |
 | 模型仓库 | [ASLP-lab / M5-TTS](https://huggingface.co/ASLP-lab/M5-TTS) |
 
-**开放范围：** 推理代码、SFT/继续预训练代码（`train.py`、`m5/training/`）、语音克隆模型权重及精品说话人模型权重；**不开放 GRPO 强化学习训练代码**。VoiceJudge 的模型权重与推理代码也计划开放，具体文件以本仓库和模型仓库的发布内容为准。
+**开放范围：** 推理代码、SFT/继续预训练代码（`train.py`、`m5/training/`）、GRPO 强化学习训练代码（`grpo/`）、语音克隆模型权重及精品说话人模型权重。VoiceJudge 的模型权重与推理代码也计划开放，具体文件以本仓库和模型仓库的发布内容为准。
 
 ## 目录
 
@@ -80,6 +80,8 @@ https://github.com/user-attachments/assets/9fa7b835-a084-4cf6-9074-c45cb28f9b9e
   - [开始训练](#开始训练)
   - [配置项](#配置项)
   - [检查点](#检查点)
+- [GRPO 强化学习训练](#grpo-强化学习训练)
+  - [GRPO 输入与训练](#grpo-输入与训练)
 - [评测](#评测)
 - [方法概述](#方法概述)
 - [当前限制与后续方向](#当前限制与后续方向)
@@ -335,6 +337,41 @@ python infer_clone.py \
 ```
 
 训练会自动从 `exp_dir` 中最新的完整检查点续训；也可用 `--resume <检查点目录>` 显式指定，或用 `--init-model <仓库ID或目录>` 只加载权重、以全新优化器继续训练。旧版六控制符权重需要设置 `allow_vocab_expansion: true`，并保留其 `conditioning.json`。请只恢复自己训练产生或可信来源的检查点：Accelerate 通过 PyTorch 反序列化恢复优化器状态。
+
+## GRPO 强化学习训练
+
+`grpo/` 是一套自包含的 M5-TTS GRPO 子系统，基于 verl 0.9.1、FSDP2 和 Ray，在单机八张支持 BF16 的 GPU 上运行；每步对 32 条提示各采样 8 个结果。奖励由三部分组成：
+
+| 信号 | 权重 |
+| --- | ---: |
+| 局部 CER（`char_exp`） | 0.5 |
+| 说话人相似度 SIM（WavLM/ECAPA） | 1.0 |
+| 停顿 Pause | 0.5 |
+
+GRPO 维护**自己的环境列表** [`grpo/requirements.txt`](grpo/requirements.txt)，需要单独的 Python 3.11 虚拟环境（PyTorch 2.9.1/CUDA 12.8）。它与仓库根目录的 `requirements.txt`（PyTorch 2.6.0/CUDA 12.4，且 NumPy/Accelerate/tokenizers 版本不同）不兼容，请勿把任一清单装进对方的环境。在仓库根目录执行：
+
+```bash
+cd grpo
+python3.11 -m venv .venv && source .venv/bin/activate
+python -m pip install torch==2.9.1 torchvision==0.24.1 torchaudio==2.9.1 --index-url https://download.pytorch.org/whl/cu128
+python -m pip install -r requirements.txt
+python -m pip install --no-deps qwen-tts==0.0.3
+python -m pip install --no-deps verl==0.9.1
+git clone https://github.com/s3prl/s3prl.git assets/s3prl
+git -C assets/s3prl checkout ec8064b5889f81ca460fbe2c094ce576a6f120b7
+```
+
+verl 声明依赖 Transformers 5.x，本配方只使用其 controller、engine 和算法接口，并搭配 Transformers 4.57.6。`qwen-tts` 用 `--no-deps` 单独安装，因为它锁定 Transformers 4.57.3，而 `qwen-asr` 要求 4.57.6。TorchCodec 需要 FFmpeg 动态库，Ray 需要至少 2 GiB 共享内存。
+
+### GRPO 输入与训练
+
+请从 Hugging Face 下载 M5、codec、ASR、强制对齐和说话人验证资产到 `grpo/assets/`，权重和数据不包含在本仓库中。输入格式、配置字段和训练选项见 [`grpo/README.md`](grpo/README.md)。激活 GRPO 环境后，在 `grpo/` 目录下执行：
+
+```bash
+python -m verl_trainer.colocated_trainer --config config.yaml
+```
+
+`--max-steps 1` 可只做一次参数更新；`--resume` 从检查点目录续训，运行目录中的 `STOP` 文件可请求保存并退出。第三方条款见 [`grpo/THIRD_PARTY_NOTICES.md`](grpo/THIRD_PARTY_NOTICES.md) 和 [`grpo/LICENSE-APACHE-2.0`](grpo/LICENSE-APACHE-2.0)。
 
 ## 评测
 

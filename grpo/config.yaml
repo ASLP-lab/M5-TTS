@@ -1,0 +1,35 @@
+m5_model:
+  checkpoint: assets/m5/model.safetensors
+  backbone_flavor: llama-30M
+  decoder_flavor: llama-20M
+  codec_path: assets/Qwen3-TTS-12Hz-1.7B-Base/speech_tokenizer
+
+assets:
+  asr_model: assets/Qwen3-ASR-0.6B
+  aligner_model: assets/Qwen3-ForcedAligner-0.6B
+  s3prl_checkout: assets/s3prl
+  wavlm_checkpoint: assets/wavlm_large.pt
+  sim_checkpoint: assets/wavlm_large_finetune.pth
+
+verl:
+  prompt_file: data/prompts.jsonl
+  run_root: runs/char-cer-sim-pause
+  reward_port_base: 19881
+
+train_conf:
+  reference_pool: data/references.json
+  checkpoint_root: runs/char-cer-sim-pause/checkpoints
+  final_step: 100
+  save_per_step: 25
+  seed: 10086
+  shuffle_buffer: 5000
+  data_repeats: 1000
+  optim_conf:
+    lr: 1.0e-6
+    weight_decay: 5.0e-5
+  reward_weight:
+    cer_reward: 0.0
+    sim_reward: 1.0
+    pause_reward: 0.5
+  token_cer:
+    weight: 0.5

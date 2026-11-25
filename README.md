@@ -56,7 +56,7 @@ Try reference-based voice cloning in the [interactive Space](https://huggingface
 | Model collection | [ASLP-lab / M5-TTS collection](https://huggingface.co/collections/ASLP-lab/m5-tts) |
 | Model repository | [ASLP-lab / M5-TTS](https://huggingface.co/ASLP-lab/M5-TTS) |
 
-**Release scope:** inference code, SFT/continued-pretraining code (`train.py`, `m5/training/`), voice-cloning checkpoints, and speaker-specific checkpoints. GRPO reinforcement-learning training code is **not included** in the open-source release. VoiceJudge model weights and inference code are planned for release. Follow the model repositories and this repository for artifact availability.
+**Release scope:** inference code, SFT/continued-pretraining code (`train.py`, `m5/training/`), GRPO reinforcement-learning training code (`grpo/`), voice-cloning checkpoints, and speaker-specific checkpoints. VoiceJudge model weights and inference code are planned for release. Follow the model repositories and this repository for artifact availability.
 
 ## Contents
 
@@ -80,6 +80,8 @@ Try reference-based voice cloning in the [interactive Space](https://huggingface
   - [Start Training](#start-training)
   - [Configuration](#configuration)
   - [Checkpoints](#checkpoints)
+- [GRPO Training (Reinforcement Learning)](#grpo-training-reinforcement-learning)
+  - [GRPO Inputs and Training](#grpo-inputs-and-training)
 - [Evaluation](#evaluation)
 - [How It Works](#how-it-works)
 - [Limitations and Roadmap](#limitations-and-roadmap)
@@ -335,6 +337,41 @@ python infer_clone.py \
 ```
 
 Training resumes automatically from the newest complete checkpoint in `exp_dir`. Use `--resume <checkpoint_dir>` to select one explicitly, or `--init-model <repo_or_directory>` for weights-only continuation with a fresh optimizer. Legacy six-token checkpoints need `allow_vocab_expansion: true` and their saved `conditioning.json`. Only resume from checkpoints you produced yourself or trust: Accelerate restores optimizer state through PyTorch deserialization.
+
+## GRPO Training (Reinforcement Learning)
+
+`grpo/` is a self-contained GRPO subsystem for M5-TTS built on verl 0.9.1, FSDP2 and Ray. It runs on a single node with eight BF16-capable GPUs; each step samples eight completions for each of 32 prompts. Three rewards are combined:
+
+| Signal | Weight |
+| --- | ---: |
+| Local CER (`char_exp`) | 0.5 |
+| Speaker SIM (WavLM/ECAPA) | 1.0 |
+| Pause | 0.5 |
+
+GRPO maintains **its own environment list**, [`grpo/requirements.txt`](grpo/requirements.txt), and needs a separate Python 3.11 virtual environment (PyTorch 2.9.1/CUDA 12.8). It is not compatible with the repository-root `requirements.txt` (PyTorch 2.6.0/CUDA 12.4, plus different NumPy/Accelerate/tokenizers versions); do not install either list into the other environment. From the repository root:
+
+```bash
+cd grpo
+python3.11 -m venv .venv && source .venv/bin/activate
+python -m pip install torch==2.9.1 torchvision==0.24.1 torchaudio==2.9.1 --index-url https://download.pytorch.org/whl/cu128
+python -m pip install -r requirements.txt
+python -m pip install --no-deps qwen-tts==0.0.3
+python -m pip install --no-deps verl==0.9.1
+git clone https://github.com/s3prl/s3prl.git assets/s3prl
+git -C assets/s3prl checkout ec8064b5889f81ca460fbe2c094ce576a6f120b7
+```
+
+The verl wheel declares Transformers 5.x, but this recipe uses its controller, engine and algorithm interfaces with Transformers 4.57.6. `qwen-tts` is installed with `--no-deps` because it pins Transformers 4.57.3 while `qwen-asr` requires 4.57.6. TorchCodec needs FFmpeg shared libraries; Ray needs at least 2 GiB of shared memory.
+
+### GRPO Inputs and Training
+
+Download the M5, codec, ASR, aligner and speaker-verification assets from Hugging Face into `grpo/assets/`; weights and data are not included in this repository. Input formats, configuration fields and training options are documented in [`grpo/README.md`](grpo/README.md). With the GRPO environment activated, from the `grpo/` directory:
+
+```bash
+python -m verl_trainer.colocated_trainer --config config.yaml
+```
+
+`--max-steps 1` runs a single update; `--resume` continues from a step directory, and a `STOP` file in the run directory requests a checkpoint and exit. Third-party terms are listed in [`grpo/THIRD_PARTY_NOTICES.md`](grpo/THIRD_PARTY_NOTICES.md) and [`grpo/LICENSE-APACHE-2.0`](grpo/LICENSE-APACHE-2.0).
 
 ## Evaluation
 

@@ -1,0 +1,30 @@
+# Install CUDA PyTorch, qwen-tts and the verl 0.9.1 wheel as shown in README.md.
+# qwen-tts==0.0.3 is installed separately with --no-deps: it pins
+# transformers==4.57.3, while qwen-asr and the M5 model require 4.57.6.
+# onnxruntime/einops are runtime dependencies of that --no-deps install.
+transformers==4.57.6
+tokenizers==0.22.2
+ray[default]==2.55.1
+tensordict==0.10.0
+torchdata==0.11.0
+torchcodec==0.8.1
+accelerate==1.12.0
+safetensors==0.6.2
+codetiming==1.4.0
+hydra-core==1.3.2
+peft==0.7.0
+datasets==3.0.1
+qwen-asr==0.0.6
+numpy==2.1.0
+soundfile==0.12.1
+librosa==0.11.0
+onnxruntime==1.23.2
+einops==0.8.1
+jiwer==3.1.0
+zhconv==1.4.3
+zhon==2.1.1
+fastapi==0.123.9
+uvicorn==0.22.0
+requests
+tensorboard==2.20.0
+PyYAML==6.0.3

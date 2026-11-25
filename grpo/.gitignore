@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.venv/
+assets/
+data/
+runs/
+train.yaml
+*.safetensors
+*.pt
+*.pth
+*.wav
+*.log
