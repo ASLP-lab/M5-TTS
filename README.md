@@ -56,7 +56,7 @@ Try reference-based voice cloning in the [interactive Space](https://huggingface
 | Model collection | [ASLP-lab / M5-TTS collection](https://huggingface.co/collections/ASLP-lab/m5-tts) |
 | Model repository | [ASLP-lab / M5-TTS](https://huggingface.co/ASLP-lab/M5-TTS) |
 
-**Release scope:** inference code, voice-cloning checkpoints, and speaker-specific checkpoints. Training, CPT, and GRPO training code are **not included** in the open-source release. VoiceJudge model weights and inference code are planned for release. Follow the model repositories and this repository for artifact availability.
+**Release scope:** inference code, SFT/continued-pretraining code (`train.py`, `m5/training/`), voice-cloning checkpoints, and speaker-specific checkpoints. GRPO reinforcement-learning training code is **not included** in the open-source release. VoiceJudge model weights and inference code are planned for release. Follow the model repositories and this repository for artifact availability.
 
 ## Contents
 
@@ -75,6 +75,11 @@ Try reference-based voice cloning in the [interactive Space](https://huggingface
     - [NVIDIA GPU](#nvidia-gpu)
   - [Export to ONNX](#export-to-onnx)
   - [Android ONNX Runtime Example](#android-onnx-runtime-example)
+- [Training](#training)
+  - [Data](#data)
+  - [Start Training](#start-training)
+  - [Configuration](#configuration)
+  - [Checkpoints](#checkpoints)
 - [Evaluation](#evaluation)
 - [How It Works](#how-it-works)
 - [Limitations and Roadmap](#limitations-and-roadmap)
@@ -247,6 +252,89 @@ Use the exported directory as `--model` for `infer_onnx.py`. Run `python onnx/ex
 The native Android example is in [`android/`](android/README.md). It runs offline ONNX inference on Android 9+ arm64 devices. Build the app, package a compatible ONNX model as `.m5model`, then import it into the app.
 
 See the [Android guide](android/README.md) for JDK/Android SDK requirements, APK building, and model packaging.
+
+## Training
+
+`train.py` trains the same `m5.model` architecture and conditioning format used by inference. The training dependency `datasets` is included in `requirements.txt`; PyTorch training also needs FlashAttention (see [Installation](#installation)).
+
+Optional features are installed separately:
+
+```bash
+# Pinyin augmentation (set pinyin_vocab_path in the config)
+pip install jieba pypinyin
+# Experiment tracking (set report_to to "wandb" or "tensorboard")
+pip install wandb        # or: pip install tensorboard
+```
+
+### Data
+
+Prepare JSONL shards in a directory of your choice. Every `*.jsonl` file under `data_path` is read recursively; each line is one utterance:
+
+```json
+{"utt": "sample_000001", "text": "你好，欢迎使用 M5-TTS。", "token": [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]], "caption": "None", "accent": "None", "lang": "Chinese", "speaker": "0"}
+```
+
+- `token`: a `[frames, 16]` integer array of Qwen3-TTS-Tokenizer-12Hz codes in `0..2047` (24 kHz mono audio, 12 Hz frames). The example above shows a single frame. The collate function adds the `+1` offset and the EOS frame.
+- `text`: raw text, not cached token IDs. Conditioning markers are added by the tokenizer.
+- `caption`, `accent`, `lang`, `speaker`: strings; `"None"` or an empty value means unspecified, and speaker `"0"` is also treated as unspecified.
+- `wav`, `duration`, `start_time`, `end_time` are optional metadata and are ignored.
+
+Split the data into multiple shards so Hugging Face datasets can parallelize across DataLoader workers. Use only data and recordings you are licensed to train on.
+
+### Start Training
+
+Edit `m5/configs/train_example.json` (at least `data_path`), then run from the repository root:
+
+```bash
+# Single GPU
+accelerate launch --num_machines 1 --num_processes 1 train.py \
+  --config m5/configs/train_example.json \
+  --exp_dir outputs/train_demo
+
+# 8 GPUs on one machine
+accelerate launch --num_machines 1 --num_processes 8 train.py \
+  --config m5/configs/train_example.json \
+  --exp_dir outputs/train_demo
+```
+
+`./train.sh` wraps the single-GPU command. `CONFIG`, `EXP_DIR`, `NUM_PROCESSES` and `CUDA_VISIBLE_DEVICES` override its defaults, and extra arguments are forwarded, for example `./train.sh --total_steps 100`.
+
+The example config initializes weights from `ASLP-lab/M5-TTS-50M-VoiceClone` and downloads its tokenizer from Hugging Face. Set `init_model` to `null` to train from scratch, or point `init_model` / `tokenizer` at a local bundle for offline use (`HF_HUB_OFFLINE=1`). `--init-model` and `--tokenizer` override these values on the command line. `init_model` must use the same `backbone_flavor` and `decoder_flavor` as the config.
+
+On machines without FlashAttention, set `attention_type` to `sdpa`. BF16 is the reference precision; `fp16` and `no` are also accepted.
+
+### Configuration
+
+| Field | Meaning |
+| --- | --- |
+| `data_path` | Directory containing JSONL shards |
+| `backbone_flavor`, `decoder_flavor` | Architecture sizes defined in `m5/model/flavors.py` |
+| `init_model`, `tokenizer` | HF repo ID or local bundle for initial weights / tokenizer |
+| `total_steps`, `save_every`, `log_every` | Stop step, checkpoint interval, logging interval |
+| `num_warmup_steps`, `scheduler_steps`, `learning_rate`, `min_lr` | Warmup → cosine → constant LR schedule |
+| `max_tokens`, `batch_max_tokens`, `num_buckets` | Per-sample limit, per-batch token budget, bucket count |
+| `num_workers`, `shuffle_seed` | DataLoader workers and stream shuffle seed |
+| `decoder_fraction`, `lambda_depth` | Fraction of frames used by the depth decoder and its loss weight |
+| `pinyin_vocab_path`, `pinyin_aug_ratio` | Optional pinyin augmentation; `null` disables it |
+| `report_to`, `project_name` | `none` / `wandb` / `tensorboard` and the run name |
+| `resume_from_checkpoint`, `seed` | Full-state resume directory and global seed |
+
+For W&B, set `WANDB_API_KEY` in the environment; do not put credentials in the config file or source code.
+
+### Checkpoints
+
+`exp_dir` contains a `conditioning.json` + `tokenizer/` bundle and `model_<epoch>_<step>/` directories with the full training state. `epoch` counts stream restarts and can grow quickly when multi-GPU sharding shortens each pass; `step` is the global optimizer step. Each checkpoint also contains `config.json` and its own conditioning bundle, so it can be used directly as an inference model:
+
+```bash
+python infer_clone.py \
+  --model outputs/train_demo/model_1_5000 \
+  --text "你好，欢迎使用我们的语音合成模型。" \
+  --prompt-wav assets/aslp_default_voice.wav \
+  --prompt-text "猪携带该疾病，然后通过蚊子传染给人类。" \
+  --output outputs/ft_clone.wav
+```
+
+Training resumes automatically from the newest complete checkpoint in `exp_dir`. Use `--resume <checkpoint_dir>` to select one explicitly, or `--init-model <repo_or_directory>` for weights-only continuation with a fresh optimizer. Legacy six-token checkpoints need `allow_vocab_expansion: true` and their saved `conditioning.json`. Only resume from checkpoints you produced yourself or trust: Accelerate restores optimizer state through PyTorch deserialization.
 
 ## Evaluation
 

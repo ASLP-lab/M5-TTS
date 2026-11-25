@@ -56,7 +56,7 @@ https://github.com/user-attachments/assets/9fa7b835-a084-4cf6-9074-c45cb28f9b9e
 | 模型合集 | [ASLP-lab / M5-TTS collection](https://huggingface.co/collections/ASLP-lab/m5-tts) |
 | 模型仓库 | [ASLP-lab / M5-TTS](https://huggingface.co/ASLP-lab/M5-TTS) |
 
-**开放范围：** 推理代码、语音克隆模型权重及精品说话人模型权重；**不开放预训练、CPT 和 GRPO 训练代码**。VoiceJudge 的模型权重与推理代码也计划开放，具体文件以本仓库和模型仓库的发布内容为准。
+**开放范围：** 推理代码、SFT/继续预训练代码（`train.py`、`m5/training/`）、语音克隆模型权重及精品说话人模型权重；**不开放 GRPO 强化学习训练代码**。VoiceJudge 的模型权重与推理代码也计划开放，具体文件以本仓库和模型仓库的发布内容为准。
 
 ## 目录
 
@@ -75,6 +75,11 @@ https://github.com/user-attachments/assets/9fa7b835-a084-4cf6-9074-c45cb28f9b9e
     - [NVIDIA GPU](#nvidia-gpu)
   - [导出 ONNX](#导出-onnx)
   - [Android ONNX Runtime 示例](#android-onnx-runtime-示例)
+- [训练](#训练)
+  - [数据准备](#数据准备)
+  - [开始训练](#开始训练)
+  - [配置项](#配置项)
+  - [检查点](#检查点)
 - [评测](#评测)
 - [方法概述](#方法概述)
 - [当前限制与后续方向](#当前限制与后续方向)
@@ -247,6 +252,89 @@ python onnx/export.py \
 原生 Android 示例位于 [`android/`](android/README.md)，支持 Android 9+ arm64 设备上的离线 ONNX 推理。构建 App 后，将兼容的 ONNX 模型打包为 `.m5model`，再导入 App。
 
 JDK、Android SDK、APK 构建和模型打包方法见 [Android 指南](android/README.md)。
+
+## 训练
+
+`train.py` 使用与推理相同的 `m5.model` 模型结构和条件格式。训练所需依赖 `datasets` 已包含在 `requirements.txt` 中；PyTorch 训练还需要 FlashAttention（见[安装](#安装)）。
+
+少数可选功能按需另外安装：
+
+```bash
+# 拼音增强（在配置中设置 pinyin_vocab_path）
+pip install jieba pypinyin
+# 实验记录（把 report_to 设为 "wandb" 或 "tensorboard"）
+pip install wandb        # 或：pip install tensorboard
+```
+
+### 数据准备
+
+自行准备 JSONL 分片，放在任意目录。程序会递归读取 `data_path` 下所有 `*.jsonl` 文件，每行一条样本：
+
+```json
+{"utt": "sample_000001", "text": "你好，欢迎使用 M5-TTS。", "token": [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]], "caption": "None", "accent": "None", "lang": "Chinese", "speaker": "0"}
+```
+
+- `token`：形状为 `[帧数, 16]` 的整数数组，取值 `0..2047`，由 Qwen3-TTS-Tokenizer-12Hz 对 24 kHz 单声道音频编码得到（12 Hz 帧率）。上例只展示了一帧。拼接函数会自动加 `+1` 偏置并补 EOS 帧。
+- `text`：原始文本，不是预先缓存的 token id；条件标记由 tokenizer 添加。
+- `caption`、`accent`、`lang`、`speaker`：字符串；`"None"` 或空值表示未指定，说话人 `"0"` 同样按未指定处理。
+- `wav`、`duration`、`start_time`、`end_time` 为可选元数据，训练时忽略。
+
+建议把数据拆成多个分片，以便 Hugging Face datasets 让多个 DataLoader worker 并行读取。请仅使用已获授权的数据和录音进行训练。
+
+### 开始训练
+
+修改 `m5/configs/train_example.json`（至少修改 `data_path`），然后在仓库根目录执行：
+
+```bash
+# 单卡
+accelerate launch --num_machines 1 --num_processes 1 train.py \
+  --config m5/configs/train_example.json \
+  --exp_dir outputs/train_demo
+
+# 单机 8 卡
+accelerate launch --num_machines 1 --num_processes 8 train.py \
+  --config m5/configs/train_example.json \
+  --exp_dir outputs/train_demo
+```
+
+`./train.sh` 封装了单卡命令，可用环境变量 `CONFIG`、`EXP_DIR`、`NUM_PROCESSES`、`CUDA_VISIBLE_DEVICES` 覆盖默认值，附加参数会原样传给训练脚本，例如 `./train.sh --total_steps 100`。
+
+示例配置默认从 `ASLP-lab/M5-TTS-50M-VoiceClone` 初始化权重，并从 Hugging Face 下载配套的 tokenizer。将 `init_model` 设为 `null` 可从零训练；把 `init_model` / `tokenizer` 指向本地模型目录即可离线使用（`HF_HUB_OFFLINE=1`）。命令行参数 `--init-model`、`--tokenizer` 可覆盖配置。`init_model` 的 `backbone_flavor` 和 `decoder_flavor` 必须与配置一致。
+
+没有安装 FlashAttention 的机器可把 `attention_type` 设为 `sdpa`。推荐精度为 BF16，也支持 `fp16` 和 `no`。
+
+### 配置项
+
+| 字段 | 含义 |
+| --- | --- |
+| `data_path` | JSONL 分片所在目录 |
+| `backbone_flavor`、`decoder_flavor` | `m5/model/flavors.py` 中定义的模型规模 |
+| `init_model`、`tokenizer` | 初始权重 / tokenizer 的 Hugging Face 仓库 ID 或本地目录 |
+| `total_steps`、`save_every`、`log_every` | 停止步数、保存间隔、日志间隔 |
+| `num_warmup_steps`、`scheduler_steps`、`learning_rate`、`min_lr` | warmup → 余弦退火 → 恒定学习率调度 |
+| `max_tokens`、`batch_max_tokens`、`num_buckets` | 单样本长度上限、单批 token 预算、分桶数量 |
+| `num_workers`、`shuffle_seed` | DataLoader worker 数与流式 shuffle 种子 |
+| `decoder_fraction`、`lambda_depth` | 深度 decoder 抽样的帧比例及其损失权重 |
+| `pinyin_vocab_path`、`pinyin_aug_ratio` | 可选拼音增强；设为 `null` 即关闭 |
+| `report_to`、`project_name` | `none` / `wandb` / `tensorboard` 与实验名 |
+| `resume_from_checkpoint`、`seed` | 完整状态恢复目录与全局随机种子 |
+
+使用 W&B 时，请通过环境变量设置 `WANDB_API_KEY`，不要把凭据写进配置文件或代码。
+
+### 检查点
+
+`exp_dir` 下包含 `conditioning.json` 与 `tokenizer/` 条件包，以及保存完整训练状态的 `model_<epoch>_<step>/` 目录。`epoch` 表示数据流重启次数，多卡分片后每轮数据量变少，该编号可能增长较快；`step` 才是全局优化步数。每个检查点还带有 `config.json` 和独立的条件包，可直接作为推理模型使用：
+
+```bash
+python infer_clone.py \
+  --model outputs/train_demo/model_1_5000 \
+  --text "你好，欢迎使用我们的语音合成模型。" \
+  --prompt-wav assets/aslp_default_voice.wav \
+  --prompt-text "猪携带该疾病，然后通过蚊子传染给人类。" \
+  --output outputs/ft_clone.wav
+```
+
+训练会自动从 `exp_dir` 中最新的完整检查点续训；也可用 `--resume <检查点目录>` 显式指定，或用 `--init-model <仓库ID或目录>` 只加载权重、以全新优化器继续训练。旧版六控制符权重需要设置 `allow_vocab_expansion: true`，并保留其 `conditioning.json`。请只恢复自己训练产生或可信来源的检查点：Accelerate 通过 PyTorch 反序列化恢复优化器状态。
 
 ## 评测
 
