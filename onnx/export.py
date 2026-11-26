@@ -25,6 +25,7 @@ import torch
 from checkpoint import CODEC_FILES, DEFAULT_CODEC, load_checkpoint, load_codec, resolve, sha256
 from graphs import Backbone, CodecEncoder, CodecTransformer, DepthFrame, causal_extra_padding, export_graph
 from cached_codec import export_cached_codec
+from codec_search import rewrite_codec_search
 
 TTS_FILES = ('backbone.onnx', 'depth_frame.onnx', 'text_embeddings.npy', 'audio_embeddings.npy',
              'tokenizer.json', 'manifest.json')
@@ -98,7 +99,7 @@ def export_tts(model, tokenizer, checkpoint, output, threads):
     return checks
 
 
-def export_codec(codec, output, threads):
+def export_codec(codec, output, threads, *, optimize_encoder=False):
     checks = []
     cached = export_cached_codec(codec, output)
     cases = []
@@ -119,11 +120,14 @@ def export_codec(codec, output, threads):
     checks.append(validate_graph(output/'codec_decoder.onnx',codec.decoder,
                                  [(torch.randint(0,2048,(1,16,n)),) for n in (1,9,16)],threads))
     encoder = CodecEncoder(codec)
-    export_graph(encoder,(torch.zeros(1,24000),),output/'codec_encoder.onnx',
+    encoder_path = output/'codec_encoder.onnx'
+    export_graph(encoder,(torch.zeros(1,24000),),encoder_path,
                  ['audio'],['codes'],{'audio':{1:'samples'},'codes':{2:'frames'}})
+    if optimize_encoder:
+        rewrite_codec_search(encoder_path)
     cases = [(torch.sin(torch.arange(n,dtype=torch.float32)*(.037 if n%2 else .061))[None]*.1,) for n in (19200,30721)]
-    checks.append(validate_graph(output/'codec_encoder.onnx',encoder,cases,threads))
-    save(output/'codec_identity.json',dict(encoder_sha256=sha256(output/'codec_encoder.onnx')))
+    checks.append(validate_graph(encoder_path,encoder,cases,threads))
+    save(output/'codec_identity.json',dict(encoder_sha256=sha256(encoder_path)))
     return checks
 
 
@@ -181,9 +185,13 @@ def main():
     parser.add_argument('--cache-dir')
     parser.add_argument('--local-files-only',action='store_true')
     parser.add_argument('--threads',type=int,default=4)
+    parser.add_argument('--optimize-codec-encoder',action='store_true',
+                        help='Use the faster FP32 codebook search when exporting a new codec encoder')
     args = parser.parse_args()
     if args.threads<1:
         parser.error('--threads must be positive')
+    if args.reuse_codec and args.optimize_codec_encoder:
+        parser.error('--optimize-codec-encoder requires a fresh codec export')
     output = args.output.expanduser().resolve()
     if output.exists():
         parser.error('Output already exists; choose a new directory')
@@ -210,14 +218,17 @@ def main():
                 copy_codec(codec_bundle,stage)
             else:
                 codec_model = load_codec(codec_bundle)
-                checks.extend(export_codec(codec_model,stage,args.threads))
+                checks.extend(export_codec(codec_model,stage,args.threads,
+                                           optimize_encoder=args.optimize_codec_encoder))
                 del codec_model
                 gc.collect()
         files = TTS_FILES+CODEC_FILES
         save(stage/'checksums.json',{name:dict(bytes=(stage/name).stat().st_size,sha256=sha256(stage/name)) for name in files})
         smoke = validate_bundle(stage,args.threads)
         save(stage/'export_info.json',dict(format_version=1,precision='fp32',opset=17,dynamo=False,
-                                           codec_reused=bool(args.reuse_codec),numerical_validation=checks,pipeline_smoke=smoke,
+                                           codec_reused=bool(args.reuse_codec),
+                                           codec_encoder_search_rewritten=args.optimize_codec_encoder,
+                                           numerical_validation=checks,pipeline_smoke=smoke,
                                            versions={n:importlib.metadata.version(n) for n in ('torch','transformers','onnx','onnxruntime','tokenizers')},
                                            note='Explicit ONNX attention and FP32 sampling follow the ONNX reference implementation. This is not a FlashAttention/BF16 bitwise equivalence claim.'))
         if output.exists():
